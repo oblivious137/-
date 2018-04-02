@@ -8,8 +8,7 @@
 #include <iostream>
 #include <algorithm>
 #include <functional>
-#include "headquarter_define.h"
-#include "weapon_define.h"
+#include "WarcraftClassDclaration.h"
 using namespace std;
 
 class Samurai
@@ -26,8 +25,8 @@ class Samurai
 	virtual string getinfo() const = 0;
 	virtual Samurai *generate(Headquarter *) const = 0;
 	virtual ~Samurai() = default;
-	Headquarter* get_belong(){return belong;}
-	int get_direct(){return belong->get_direct();}
+	Headquarter* get_belong();
+	int get_direct();
 	string escape(){return "";}
 };
 
@@ -38,7 +37,6 @@ class Dragon : public Samurai
 
   public:
 	Dragon(Headquarter *_B = NULL, int _number = 0, int _HP = 0, int _Atk = 0, double _morale = 0, Weapon *_weapon = NULL) : Samurai(_B, _number, _HP, _Atk), morale(_morale), weapon(_weapon){};
-	string getweaponname() const { return weapon->getname(); }
 	virtual string getname() const { return "dragon"; }
 	virtual ~Dragon()
 	{
@@ -110,69 +108,3 @@ class Wolf : public Samurai
 	Samurai *generate(Headquarter *info) const;
 };
 
-string Dragon::getinfo() const
-{
-	stringstream tmp;
-	tmp << "It has a " << getweaponname() << ",and it's morale is " << fixed << setprecision(2) << morale;
-	return tmp.str();
-}
-Samurai *Dragon::generate(Headquarter *info) const
-{
-	if (info->getHP() < getHP())
-		return NULL;
-	int cnt = info->getCount() + 1;
-	return new Dragon(info, cnt, getHP(), getAtk(), (double)info->getHP() / getHP() - 1, info->getweapon(cnt % 3));
-}
-
-string Ninja::getinfo() const
-{
-	string ret = "It has";
-	if (weapon[0])
-		ret += " a " + weapon[0]->getname();
-	if (weapon[1])
-		ret += " and a " + weapon[1]->getname();
-	return ret;
-}
-Samurai *Ninja::generate(Headquarter *info) const
-{
-	if (info->getHP() < getHP())
-		return NULL;
-	int cnt = info->getCount() + 1;
-	return new Ninja(info, cnt, getHP(), getAtk(), info->getweapon(cnt % 3), info->getweapon((cnt + 1) % 3));
-}
-
-string Iceman::getinfo() const
-{
-	return "It has a " + ((weapon != NULL) ? weapon->getname() : "");
-}
-Samurai *Iceman::generate(Headquarter *info) const
-{
-	if (info->getHP() < getHP())
-		return NULL;
-	int cnt = info->getCount() + 1;
-	return new Iceman(info, cnt, getHP(), getAtk(), info->getweapon(cnt % 3));
-}
-
-string Lion::getinfo() const
-{
-	return "It's loyalty is " + to_string(loyalty);
-}
-Samurai *Lion::generate(Headquarter *info) const
-{
-	if (info->getHP() < getHP())
-		return NULL;
-	int cnt = info->getCount() + 1;
-	return new Lion(info, cnt, getHP(), getAtk(), info->getHP() - getHP());
-}
-
-string Wolf::getinfo() const
-{
-	return "";
-}
-Samurai *Wolf::generate(Headquarter *info) const
-{
-	if (info->getHP() < getHP())
-		return NULL;
-	int cnt = info->getCount() + 1;
-	return new Wolf(info, cnt, getHP(), getAtk());
-}

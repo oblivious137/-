@@ -8,10 +8,7 @@
 #include <iostream>
 #include <algorithm>
 #include <functional>
-#include "samurai_define.h"
-#include "headquarter_define.h"
 using namespace std;
-class Weapon;
 
 class Weapon
 {

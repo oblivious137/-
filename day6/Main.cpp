@@ -7,6 +7,8 @@
 #include <iostream>
 #include <algorithm>
 #include <functional>
+#include "headquarter.h"
+#include "samurai.h"
 using namespace std;
 
 int main()
