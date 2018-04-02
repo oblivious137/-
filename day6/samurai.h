@@ -26,6 +26,8 @@ class Samurai
 	virtual string getinfo() const = 0;
 	virtual Samurai *generate(Headquarter *) const = 0;
 	virtual ~Samurai() = default;
+	Headquarter* get_belong(){return belong;}
+	int get_direct(){return belong->get_direct();}
 };
 
 class Dragon : public Samurai
@@ -43,7 +45,7 @@ class Dragon : public Samurai
 			delete weapon;
 	}
 	virtual string getinfo() const;
-	virtual Samurai *generate(Headquarter *info) const;
+	Samurai *generate(Headquarter *info) const;
 };
 
 class Ninja : public Samurai
