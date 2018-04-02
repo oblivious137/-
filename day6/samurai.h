@@ -8,8 +8,8 @@
 #include <iostream>
 #include <algorithm>
 #include <functional>
-#include "headquarter.h"
-#include "weapon.h"
+#include "headquarter_define.h"
+#include "weapon_define.h"
 using namespace std;
 
 class Samurai
@@ -28,6 +28,7 @@ class Samurai
 	virtual ~Samurai() = default;
 	Headquarter* get_belong(){return belong;}
 	int get_direct(){return belong->get_direct();}
+	string escape(){return "";}
 };
 
 class Dragon : public Samurai

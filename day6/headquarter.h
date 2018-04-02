@@ -10,15 +10,16 @@
 #include <functional>
 #include <set>
 #include <tuple>
-#include "weapon.h"
-#include "samurai.h"
+#include "samurai_define.h"
+#include "weapon_define.h"
 using namespace std;
+class Samurai;
 class Headquarter
 {
   private:
 	string name;
-	vector<Samurai *> Order;
-	vector<function<Weapon *()>> Weapons;
+	vector<Samurai* > Order;
+	vector<function<Weapon *()> > Weapons;
 	vector<int> ExistNumber;
 	int HealthPoint, OnWitch = 0, Count = 0;
 	bool stopped = false;
@@ -27,19 +28,19 @@ class Headquarter
   public:
 	Headquarter(const string &_name, int _HP,
 				const vector<Samurai *> &_Order,
-				const vector<function<Weapon *()>> &_Weapons) : name(_name), HealthPoint(_HP),
+				const vector<function<Weapon *()> > &_Weapons) : name(_name), HealthPoint(_HP),
 																Order(_Order), ExistNumber(_Order.size(), 0),
 																Weapons(_Weapons){};
 	void Stop();
 	bool isstopped() { return stopped; }
-	tuple<Samurai *, string> build_Sa();
-	unsigned int getOrderSize() { return Order.size(); }
+	tuple<Samurai *, string> Build_SA();
+	unsigned int getOrderSize();
 	unsigned int getWeaponsSize() { return Weapons.size(); }
 	int getCount() const { return Count; }
 	void changeCount(int x) { Count = x; }
 	int getHP() const { return HealthPoint; }
 	void changeHP(int x) { HealthPoint = x; }
-	Weapon *getweapon(int x) const { return Weapons[x](); }
+	Weapon *getweapon(int x) const;
 	int get_pos() { return posi; }
 	void set_pos(int x) { posi = x; }
 	int get_direct() { return dire; }
@@ -48,45 +49,6 @@ class Headquarter
 	void set_outputlevel(int x) { outputlevel = x; }
 	string getname(){return name;}
 };
-
-void Headquarter::Stop()
-{
-	if (stopped)
-		return;
-	stopped = true;
-	return;
-}
-
-tuple<Samurai *, string> Headquarter:: build_Sa()
-{
-	if (stopped)
-		return {NULL, ""};
-	for (int i = 0; i < Order.size(); ++i)
-	{
-		if (OnWitch >= Order.size())
-			OnWitch -= Order.size();
-		Samurai *tmp = Order[OnWitch]->generate(this);
-		if (tmp)
-		{
-			HealthPoint -= tmp->getHP();
-			++Count;
-			++ExistNumber[OnWitch];
-			stringstream ret;
-
-			ret << name << ' ' << tmp->getname()
-				<< ' ' << tmp->getnumber() << " born with strength " << tmp->getHP() << ","
-				<< ExistNumber[OnWitch] << " " << tmp->getname() << " in " << name << " headquarter" << endl;
-			string tp = tmp->getinfo();
-			if (tp != "")
-				ret << tp;
-			++OnWitch;
-			return {tmp, ret.str()};
-		}
-		++OnWitch;
-	}
-	Stop();
-	return {NULL, ""};
-}
 
 class TIME
 {
@@ -110,13 +72,7 @@ class TIME
 class _OUTPUT_CMP
 {
   public:
-	bool operator()(Samurai *const a, Samurai *const b)
-	{
-		if (a->get_belong()->get_outputlevel() == b->get_belong()->get_outputlevel())
-			return a->get_belong()->get_outputlevel() < b->get_belong()->get_outputlevel();
-		else
-			return a < b;
-	}
+	bool operator()(Samurai *const a, Samurai *const b);
 };
 
 class OrderedOutput
@@ -149,16 +105,7 @@ class BattleField
 	SamuraiSet *city;
 
   public:
-	BattleField(int n, Headquarter a, Headquarter b) : Size(n + 1), HeadA(a), HeadB(b)
-	{
-		HeadA.set_pos(0);
-		HeadB.set_pos(n + 1);
-		HeadA.set_direct(1);
-		HeadB.set_direct(-1);
-		HeadA.set_outputlevel(1);
-		HeadB.set_outputlevel(2);
-		city = new SamuraiSet[n + 2];
-	};
+	BattleField(int n, Headquarter a, Headquarter b);
 	void Run()
 	{
 		for (;;)
@@ -167,12 +114,12 @@ class BattleField
 			string log;
 			Samurai *nS;
 			int outCount = 0;
-			tie(nS, log) = HeadA.build_Sa();
+			tie(nS, log) = HeadA.Build_SA();
 			if (nS && log.length())
 				output.push(outCount++, T.sPrint() + ' ' + log + '\n');
 			if (nS)
 				city[HeadA.get_pos()].insert(nS);
-			tie(nS, log) = HeadB.build_Sa();
+			tie(nS, log) = HeadB.Build_SA();
 			if (nS && log.length())
 				output.push(outCount++, T.sPrint() + ' ' + log + '\n');
 			if (nS)
@@ -215,7 +162,7 @@ class BattleField
 			}
 			for (int i = Size; i >=0; --i)
 			{
-				for (auto x : city[i])
+				for (auto x : (city[i]))
 				{
 					if (x->get_direct() > 0)
 					{
