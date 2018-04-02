@@ -14,13 +14,15 @@ using namespace std;
 
 class Samurai
 {
-	int Number, HealthPoint;
+	Headquarter *belong;
+	int Number, HealthPoint, Attack;
 
-public:
-	Samurai(int _number = 0, int _HP = 0) : Number(_number), HealthPoint(_HP) {};
+  public:
+	Samurai(Headquarter *_B = NULL, int _number = 0, int _HP = 0, int _Atk = 0) : belong(_B), Number(_number), HealthPoint(_HP), Attack(_Atk){};
 	virtual string getname() const = 0;
 	int getHP() const { return HealthPoint; }
 	int getnumber() const { return Number; }
+	int getAtk() const { return Attack; }
 	virtual string getinfo() const = 0;
 	virtual Samurai *generate(Headquarter *) const = 0;
 	virtual ~Samurai() = default;
@@ -31,8 +33,8 @@ class Dragon : public Samurai
 	Weapon *weapon;
 	double morale;
 
-public:
-	Dragon(int _number = 0, int _HP = 0, double _morale = 0, Weapon *_weapon = NULL) : Samurai(_number, _HP), morale(_morale), weapon(_weapon) {};
+  public:
+	Dragon(Headquarter *_B = NULL, int _number = 0, int _HP = 0, int _Atk = 0, double _morale = 0, Weapon *_weapon = NULL) : Samurai(_B, _number, _HP, _Atk), morale(_morale), weapon(_weapon){};
 	string getweaponname() const { return weapon->getname(); }
 	virtual string getname() const { return "dragon"; }
 	virtual ~Dragon()
@@ -48,8 +50,8 @@ class Ninja : public Samurai
 {
 	Weapon *weapon[2];
 
-public:
-	Ninja(int _number = 0, int _HP = 0, Weapon *_weapon1 = NULL, Weapon *_weapon2 = NULL) : Samurai(_number, _HP)
+  public:
+	Ninja(Headquarter *_B = NULL, int _number = 0, int _HP = 0, int _Atk = 0, Weapon *_weapon1 = NULL, Weapon *_weapon2 = NULL) : Samurai(_B, _number, _HP, _Atk)
 	{
 		weapon[0] = _weapon1;
 		weapon[1] = _weapon2;
@@ -70,8 +72,8 @@ class Iceman : public Samurai
 {
 	Weapon *weapon;
 
-public:
-	Iceman(int _number = 0, int _HP = 0, Weapon *_weapon = NULL) : Samurai(_number, _HP), weapon(_weapon) {};
+  public:
+	Iceman(Headquarter *_B = NULL, int _number = 0, int _HP = 0, int _Atk = 0, Weapon *_weapon = NULL) : Samurai(_B, _number, _HP, _Atk), weapon(_weapon){};
 	virtual string getname() const { return "iceman"; }
 	virtual ~Iceman()
 	{
@@ -86,8 +88,8 @@ class Lion : public Samurai
 {
 	int loyalty;
 
-public:
-	Lion(int _number = 0, int _HP = 0, int _loyalty = 0) : Samurai(_number, _HP), loyalty(_loyalty) {};
+  public:
+	Lion(Headquarter *_B = NULL, int _number = 0, int _HP = 0, int _Atk = 0, int _loyalty = 0) : Samurai(_B, _number, _HP, _Atk), loyalty(_loyalty){};
 	virtual string getname() const { return "lion"; }
 	virtual ~Lion() = default;
 	virtual string getinfo() const;
@@ -97,8 +99,8 @@ public:
 class Wolf : public Samurai
 {
 
-public:
-	Wolf(int _number = 0, int _HP = 0) : Samurai(_number, _HP) {};
+  public:
+	Wolf(Headquarter *_B = NULL, int _number = 0, int _HP = 0, int _Atk = 0) : Samurai(_B, _number, _HP, _Atk){};
 	virtual string getname() const { return "wolf"; }
 	virtual ~Wolf() = default;
 	virtual string getinfo() const;
@@ -116,7 +118,7 @@ Samurai *Dragon::generate(Headquarter *info) const
 	if (info->getHP() < getHP())
 		return NULL;
 	int cnt = info->getCount() + 1;
-	return new Dragon(cnt, getHP(), (double)info->getHP() / getHP() - 1, info->getweapon(cnt % 3));
+	return new Dragon(info, cnt, getHP(), getAtk(), (double)info->getHP() / getHP() - 1, info->getweapon(cnt % 3));
 }
 
 string Ninja::getinfo() const
@@ -133,7 +135,7 @@ Samurai *Ninja::generate(Headquarter *info) const
 	if (info->getHP() < getHP())
 		return NULL;
 	int cnt = info->getCount() + 1;
-	return new Ninja(cnt, getHP(), info->getweapon(cnt % 3), info->getweapon((cnt + 1) % 3));
+	return new Ninja(info, cnt, getHP(), getAtk(), info->getweapon(cnt % 3), info->getweapon((cnt + 1) % 3));
 }
 
 string Iceman::getinfo() const
@@ -145,7 +147,7 @@ Samurai *Iceman::generate(Headquarter *info) const
 	if (info->getHP() < getHP())
 		return NULL;
 	int cnt = info->getCount() + 1;
-	return new Iceman(cnt, getHP(), info->getweapon(cnt % 3));
+	return new Iceman(info, cnt, getHP(), getAtk(), info->getweapon(cnt % 3));
 }
 
 string Lion::getinfo() const
@@ -157,7 +159,7 @@ Samurai *Lion::generate(Headquarter *info) const
 	if (info->getHP() < getHP())
 		return NULL;
 	int cnt = info->getCount() + 1;
-	return new Lion(cnt, getHP(), info->getHP() - getHP());
+	return new Lion(info, cnt, getHP(), getAtk(), info->getHP() - getHP());
 }
 
 string Wolf::getinfo() const
@@ -169,5 +171,5 @@ Samurai *Wolf::generate(Headquarter *info) const
 	if (info->getHP() < getHP())
 		return NULL;
 	int cnt = info->getCount() + 1;
-	return new Wolf(cnt, getHP());
+	return new Wolf(info, cnt, getHP(), getAtk());
 }

@@ -9,28 +9,30 @@
 #include <algorithm>
 #include <functional>
 #include <set>
+#include <tuple>
 #include "weapon.h"
 #include "samurai.h"
 using namespace std;
 class Headquarter
 {
-private:
+  private:
 	string name;
 	vector<Samurai *> Order;
 	vector<function<Weapon *()>> Weapons;
 	vector<int> ExistNumber;
 	int HealthPoint, OnWitch = 0, Count = 0;
 	bool stopped = false;
+	int posi;
 
-public:
+  public:
 	Headquarter(const string &_name, int _HP,
-		const vector<Samurai *>& _Order,
-		const vector<function<Weapon *()>>& _Weapons) : name(_name), HealthPoint(_HP),
-		Order(_Order), ExistNumber(_Order.size(), 0),
-		Weapons(_Weapons) {};
+				const vector<Samurai *> &_Order,
+				const vector<function<Weapon *()>> &_Weapons) : name(_name), HealthPoint(_HP),
+																Order(_Order), ExistNumber(_Order.size(), 0),
+																Weapons(_Weapons){};
 	void Stop();
 	bool isstopped() { return stopped; }
-	string build_Sa();
+	tuple<Samurai *, string> build_Sa();
 	unsigned int getOrderSize() { return Order.size(); }
 	unsigned int getWeaponsSize() { return Weapons.size(); }
 	int getCount() const { return Count; }
@@ -38,6 +40,8 @@ public:
 	int getHP() const { return HealthPoint; }
 	void changeHP(int x) { HealthPoint = x; }
 	Weapon *getweapon(int x) const { return Weapons[x](); }
+	int get_pos(){return posi;}
+	void set_pos(int x){posi=x;}
 };
 
 void Headquarter::Stop()
@@ -48,10 +52,10 @@ void Headquarter::Stop()
 	return;
 }
 
-string Headquarter::build_Sa()
+tuple<Samurai *, string> Headquarter::build_Sa()
 {
 	if (stopped)
-		return "";
+		return {NULL, ""};
 	for (int i = 0; i < Order.size(); ++i)
 	{
 		if (OnWitch >= Order.size())
@@ -71,46 +75,62 @@ string Headquarter::build_Sa()
 			if (tp != "")
 				ret << tp;
 			++OnWitch;
-			delete tmp;
-			return ret.str();
+			return {tmp, ret.str()};
 		}
 		++OnWitch;
 	}
 	Stop();
-	return "";
+	return {NULL, ""};
 }
 
-class TIME {
+class TIME
+{
 	int minutes;
-public:
+
+  public:
 	TIME() = default;
 	void inc(int a) { minutes += a; }
-	void Print() {
+	void Print()
+	{
 		printf("%03d:%02d", minutes / 60, minutes % 60);
 	}
-	string sPrint() {
+	string sPrint()
+	{
 		char tmp[10];
 		sprintf(tmp, "%03d:%02d", minutes / 60, minutes % 60);
 		return tmp;
 	}
 };
 
-
-class BattleField {
+class BattleField
+{
 	TIME T;
 	int Size;
-	Headquarter A,B;
-	set<Samurai*> *city;
-public:
-	BattleField(int n, Headquarter a, Headquarter b) :Size(n+1), A(a), B(b) {
-		city = new set<Samurai*>[n + 2];
+	Headquarter A, B;
+	set<Samurai *> *city;
+
+  public:
+	BattleField(int n, Headquarter a, Headquarter b) : Size(n + 1), A(a), B(b)
+	{
+		A.set_pos(0);
+		B.set_pos(n+1);
+		city = new set<Samurai *>[n + 2];
 	};
-	void Run() {
-		for (;;) {
-			string tmp = A.build_Sa();
-			if (tmp.length()) cout<<T.sPrint()<<' '<<
-			T.inc()
-			for (int )
+	void Run()
+	{
+		for (;;)
+		{
+			string log;
+			Samurai *nS;
+			tie(nS, log) = A.build_Sa();
+			if (nS&&log.length())
+				cout << T.sPrint() << ' ' << log << endl;
+			if (nS) city[A.get_pos()].insert(nS);
+			tie(nS, log) = B.build_Sa();
+			if (nS&&log.length())
+				cout << T.sPrint() << ' ' << log << endl;
+
+			for (int)
 		}
 	}
 };

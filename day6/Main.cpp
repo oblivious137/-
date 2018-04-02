@@ -32,7 +32,7 @@ int main()
 			[]() { return new Weapon("bomb"); },
 			[]() { return new Weapon("arrow"); } });
 		Headquarter red("red", tmp, AS, W), blue("blue", tmp, BS, W);
-		BattleField B(red, blue);
+		BattleField B(size, red, blue);
 		for (;;) {
 
 		}
