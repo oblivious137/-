@@ -8,6 +8,7 @@
 #include <iostream>
 #include <algorithm>
 #include <functional>
+#include "WarcraftClassDeclaration.h"
 using namespace std;
 
 class Weapon

@@ -1,4 +1,7 @@
-#include "headquarter_define.h"
+#pragma once
+#include "headquarter_declaration.h"
+#include "samurai_declaration.h"
+#include "weapon_declaration.h"
 
 /********* Headquarter ***********/
 

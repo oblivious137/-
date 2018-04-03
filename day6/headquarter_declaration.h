@@ -10,27 +10,24 @@
 #include <functional>
 #include <set>
 #include <tuple>
-#include "samurai_define.h"
-#include "weapon_define.h"
+#include "WarcraftClassDeclaration.h"
 using namespace std;
-class Samurai;
+
 class Headquarter
 {
-  private:
+private:
 	string name;
-	vector<Samurai* > Order;
-	vector<function<Weapon *()> > Weapons;
+	vector<Samurai *> Order;
+	vector<function<Weapon *()>> Weapons;
 	vector<int> ExistNumber;
 	int HealthPoint, OnWitch = 0, Count = 0;
 	bool stopped = false;
 	int posi, dire, outputlevel;
 
-  public:
+public:
 	Headquarter(const string &_name, int _HP,
-				const vector<Samurai *> &_Order,
-				const vector<function<Weapon *()> > &_Weapons) : name(_name), HealthPoint(_HP),
-																Order(_Order), ExistNumber(_Order.size(), 0),
-																Weapons(_Weapons){};
+							const vector<Samurai *> &_Order,
+							const vector<function<Weapon *()>> &_Weapons);
 	void Stop();
 	bool isstopped() { return stopped; }
 	tuple<Samurai *, string> Build_SA();
@@ -47,14 +44,14 @@ class Headquarter
 	void set_direct(int x) { dire = x; }
 	int get_outputlevel() { return outputlevel; }
 	void set_outputlevel(int x) { outputlevel = x; }
-	string getname(){return name;}
+	string getname() { return name; }
 };
 
 class TIME
 {
 	int minutes;
 
-  public:
+public:
 	TIME() = default;
 	void inc(int a) { minutes += a; }
 	void Print()
@@ -71,7 +68,7 @@ class TIME
 
 class _OUTPUT_CMP
 {
-  public:
+public:
 	bool operator()(Samurai *const a, Samurai *const b);
 };
 
@@ -79,7 +76,7 @@ class OrderedOutput
 {
 	vector<pair<int, string>> data;
 
-  public:
+public:
 	void push(int t, string x) { data.push_back(make_pair(t, x)); }
 	void flush()
 	{
@@ -104,7 +101,7 @@ class BattleField
 	typedef set<Samurai *, _OUTPUT_CMP> SamuraiSet;
 	SamuraiSet *city;
 
-  public:
+public:
 	BattleField(int n, Headquarter a, Headquarter b);
 	void Run();
 };
