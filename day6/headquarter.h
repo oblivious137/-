@@ -5,6 +5,10 @@
 
 /********* Headquarter ***********/
 
+Headquarter::Headquarter(const string &_name, int _HP,
+	const vector<Samurai *> &_Order,
+	const vector<function<Weapon *()>> &_Weapons) :name(_name), HealthPoint(_HP), Order(_Order), Weapons(_Weapons), ExistNumber(0,_Order.size()){};
+
 unsigned int Headquarter::getOrderSize() { return Order.size(); }
 Weapon *Headquarter::getweapon(int x) const { return Weapons[x](); }
 
@@ -48,7 +52,7 @@ tuple<Samurai *, string> Headquarter::Build_SA()
 }
 
 /******** _OUTPUT_CMP **********/
-bool _OUTPUT_CMP::operator()(Samurai *const a, Samurai *const b)
+bool _OUTPUT_CMP::operator()(const Samurai *const a, const Samurai *const b)const
 {
     if (a->get_belong()->get_outputlevel() == b->get_belong()->get_outputlevel())
         return a->get_belong()->get_outputlevel() < b->get_belong()->get_outputlevel();

@@ -3,19 +3,19 @@
 #include "samurai_declaration.h"
 #include "weapon_declaration.h"
 
-Samurai::Samurai(Headquarter *_B = NULL, int _number = 0, int _HP = 0, int _Atk = 0) : belong(_B), Number(_number), HealthPoint(_HP), Attack(_Atk){};
+Samurai::Samurai(Headquarter *_B, int _number, int _HP, int _Atk) : belong(_B), Number(_number), HealthPoint(_HP), Attack(_Atk){};
 
-int Samurai::get_direct()
+int Samurai::get_direct()const
 {
     return belong->get_direct();
 }
 
-Headquarter *Samurai::get_belong()
+Headquarter *Samurai::get_belong()const
 {
     return belong;
 }
 
-Dragon::Dragon(Headquarter *_B = NULL, int _number = 0, int _HP = 0, int _Atk = 0, double _morale = 0, Weapon *_weapon = NULL) : Samurai(_B, _number, _HP, _Atk), morale(_morale), weapon(_weapon){};
+Dragon::Dragon(Headquarter *_B, int _number, int _HP, int _Atk, double _morale, Weapon *_weapon) : Samurai(_B, _number, _HP, _Atk), morale(_morale), weapon(_weapon){};
 string Dragon::getinfo() const
 {
 	stringstream tmp;
@@ -35,7 +35,7 @@ Dragon::~Dragon()
 		delete weapon;
 }
 
-Ninja::Ninja(Headquarter *_B = NULL, int _number = 0, int _HP = 0, int _Atk = 0, Weapon *_weapon1 = NULL, Weapon *_weapon2 = NULL) : Samurai(_B, _number, _HP, _Atk)
+Ninja::Ninja(Headquarter *_B, int _number, int _HP, int _Atk, Weapon *_weapon1, Weapon *_weapon2) : Samurai(_B, _number, _HP, _Atk)
 {
 	weapon[0] = _weapon1;
 	weapon[1] = _weapon2;
@@ -64,7 +64,7 @@ Ninja::~Ninja()
 		delete weapon[1];
 }
 
-Iceman::Iceman(Headquarter *_B = NULL, int _number = 0, int _HP = 0, int _Atk = 0, Weapon *_weapon = NULL) : Samurai(_B, _number, _HP, _Atk), weapon(_weapon){};
+Iceman::Iceman(Headquarter *_B, int _number, int _HP, int _Atk, Weapon *_weapon) : Samurai(_B, _number, _HP, _Atk), weapon(_weapon){};
 string Iceman::getinfo() const
 {
 	return "It has a " + ((weapon != NULL) ? weapon->getname() : "");
@@ -82,7 +82,7 @@ Iceman::~Iceman()
 		delete weapon;
 }
 
-Lion::Lion(Headquarter *_B = NULL, int _number = 0, int _HP = 0, int _Atk = 0, int _loyalty = 0) : Samurai(_B, _number, _HP, _Atk), loyalty(_loyalty){};
+Lion::Lion(Headquarter *_B, int _number, int _HP, int _Atk, int _loyalty) : Samurai(_B, _number, _HP, _Atk), loyalty(_loyalty){};
 string Lion::getinfo() const
 {
 	return "It's loyalty is " + to_string(loyalty);
@@ -95,7 +95,7 @@ Samurai *Lion::generate(Headquarter *info) const
 	return new Lion(info, cnt, getHP(), getAtk(), info->getHP() - getHP());
 }
 
-Wolf::Wolf(Headquarter *_B = NULL, int _number = 0, int _HP = 0, int _Atk = 0) : Samurai(_B, _number, _HP, _Atk){};
+Wolf::Wolf(Headquarter *_B, int _number, int _HP, int _Atk) : Samurai(_B, _number, _HP, _Atk){};
 string Wolf::getinfo() const
 {
 	return "";

@@ -1,3 +1,4 @@
+#define _CRT_SECURE_NO_WARNINGS
 #pragma once
 #include <cstdio>
 #include <string>
@@ -38,13 +39,13 @@ public:
 	int getHP() const { return HealthPoint; }
 	void changeHP(int x) { HealthPoint = x; }
 	Weapon *getweapon(int x) const;
-	int get_pos() { return posi; }
+	int get_pos() const { return posi; }
 	void set_pos(int x) { posi = x; }
-	int get_direct() { return dire; }
+	int get_direct() const { return dire; }
 	void set_direct(int x) { dire = x; }
-	int get_outputlevel() { return outputlevel; }
+	int get_outputlevel() const { return outputlevel; }
 	void set_outputlevel(int x) { outputlevel = x; }
-	string getname() { return name; }
+	string getname() const { return name; }
 };
 
 class TIME
@@ -69,7 +70,7 @@ public:
 class _OUTPUT_CMP
 {
 public:
-	bool operator()(Samurai *const a, Samurai *const b);
+	bool operator()(const Samurai *const a, const Samurai *const b)const;
 };
 
 class OrderedOutput

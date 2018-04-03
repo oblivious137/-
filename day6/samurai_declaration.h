@@ -25,8 +25,8 @@ class Samurai
 	virtual string getinfo() const = 0;
 	virtual Samurai *generate(Headquarter *) const = 0;
 	virtual ~Samurai() = default;
-	Headquarter* get_belong();
-	int get_direct();
+	Headquarter* get_belong() const;
+	int get_direct() const;
 	string escape(){return "";}
 };
 
