@@ -2,6 +2,7 @@
 #define _CRT_SECURE_NO_WARNINGS
 /******* Weapon ********/
 class Weapon;
+class WeaponBag;
 
 /******* Samurai *******/
 class Samurai;

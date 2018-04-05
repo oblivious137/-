@@ -9,12 +9,14 @@
 #include <algorithm>
 #include <functional>
 #include "WarcraftClassDeclaration.h"
+#include "weapon_declaration.h"
 using namespace std;
 
 class Samurai
 {
-  Headquarter *belong;
-	int Number, HealthPoint, Attack;
+	Headquarter *belong;
+	WeaponBag bag;
+	int Number, HealthPoint, Attack, Position, Direction;
 
   public:
 	Samurai(Headquarter *_B = NULL, int _number = 0, int _HP = 0, int _Atk = 0);
@@ -25,18 +27,25 @@ class Samurai
 	virtual string getinfo() const = 0;
 	virtual Samurai *generate(Headquarter *) const = 0;
 	virtual ~Samurai() = default;
-	Headquarter* get_belong() const;
+	Headquarter *get_belong() const;
 	int get_direct() const;
-	string escape(){return "";}
+	string escape() { return ""; }
+	bool addweapon(Weapon *);
+	virtual string rob(Samurai *x) { return ""; }
+	WeaponBag &getbag() { return bag; }
+	string getfullname() { return belong->getname() + ' ' + getname() + ' ' + to_string(Number); }
+	int getpos() { return Position; }
+	void setpos(int x) { Position = x; }
+	void setdirect(int x) { Direction = x; }
+	void move() {}
 };
 
 class Dragon : public Samurai
 {
-	Weapon *weapon;
 	double morale;
 
   public:
-	Dragon(Headquarter *_B = NULL, int _number = 0, int _HP = 0, int _Atk = 0, double _morale = 0, Weapon *_weapon = NULL);
+	Dragon(Headquarter *_B = NULL, int _number = 0, int _HP = 0, int _Atk = 0, double _morale = 0);
 	virtual string getname() const { return "dragon"; }
 	virtual ~Dragon();
 	virtual string getinfo() const;
@@ -45,10 +54,9 @@ class Dragon : public Samurai
 
 class Ninja : public Samurai
 {
-	Weapon *weapon[2];
 
   public:
-	Ninja(Headquarter *_B = NULL, int _number = 0, int _HP = 0, int _Atk = 0, Weapon *_weapon1 = NULL, Weapon *_weapon2 = NULL);
+	Ninja(Headquarter *_B = NULL, int _number = 0, int _HP = 0, int _Atk = 0);
 	virtual string getname() const { return "ninja"; }
 	virtual ~Ninja();
 	virtual string getinfo() const;
@@ -57,10 +65,9 @@ class Ninja : public Samurai
 
 class Iceman : public Samurai
 {
-	Weapon *weapon;
 
   public:
-	Iceman(Headquarter *_B = NULL, int _number = 0, int _HP = 0, int _Atk = 0, Weapon *_weapon = NULL);
+	Iceman(Headquarter *_B = NULL, int _number = 0, int _HP = 0, int _Atk = 0);
 	virtual string getname() const { return "iceman"; }
 	virtual ~Iceman();
 	virtual string getinfo() const;
@@ -70,13 +77,15 @@ class Iceman : public Samurai
 class Lion : public Samurai
 {
 	int loyalty;
+	int LDec;
 
   public:
-	Lion(Headquarter *_B = NULL, int _number = 0, int _HP = 0, int _Atk = 0, int _loyalty = 0);
+	Lion(Headquarter *_B = NULL, int _number = 0, int _HP = 0, int _Atk = 0, int _loyalty = 0, int _LDec = 0);
 	virtual string getname() const { return "lion"; }
 	virtual ~Lion() = default;
 	virtual string getinfo() const;
 	Samurai *generate(Headquarter *info) const;
+	string escape();
 };
 
 class Wolf : public Samurai
@@ -88,5 +97,5 @@ class Wolf : public Samurai
 	virtual ~Wolf() = default;
 	virtual string getinfo() const;
 	Samurai *generate(Headquarter *info) const;
+	string rob(Samurai *);
 };
-

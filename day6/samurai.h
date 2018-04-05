@@ -4,22 +4,23 @@
 #include "weapon_declaration.h"
 
 Samurai::Samurai(Headquarter *_B, int _number, int _HP, int _Atk) : belong(_B), Number(_number), HealthPoint(_HP), Attack(_Atk){};
-
 int Samurai::get_direct()const
 {
     return belong->get_direct();
 }
-
 Headquarter *Samurai::get_belong()const
 {
     return belong;
 }
+bool Samurai::addweapon(Weapon* x){
+	return bag.push(x);
+}
 
-Dragon::Dragon(Headquarter *_B, int _number, int _HP, int _Atk, double _morale, Weapon *_weapon) : Samurai(_B, _number, _HP, _Atk), morale(_morale), weapon(_weapon){};
+Dragon::Dragon(Headquarter *_B, int _number, int _HP, int _Atk, double _morale) : Samurai(_B, _number, _HP, _Atk), morale(_morale){};
 string Dragon::getinfo() const
 {
 	stringstream tmp;
-	tmp << "It has a " << weapon->getname() << ",and it's morale is " << fixed << setprecision(2) << morale;
+	tmp << "It has a " ;//<< weapon->getname() << ",and it's morale is " << fixed << setprecision(2) << morale;
 	return tmp.str();
 }
 Samurai *Dragon::generate(Headquarter *info) const
@@ -27,26 +28,22 @@ Samurai *Dragon::generate(Headquarter *info) const
 	if (info->getHP() < getHP())
 		return NULL;
 	int cnt = info->getCount() + 1;
-	return new Dragon(info, cnt, getHP(), getAtk(), (double)info->getHP() / getHP() - 1, info->getweapon(cnt % 3));
+	Samurai* ret=new Dragon(info, cnt, getHP(), getAtk(), (double)info->getHP() / getHP() - 1);
+	ret->addweapon(info->getweapon(cnt % 3));
+	return ret;
 }
 Dragon::~Dragon()
 {
-	if (weapon)
-		delete weapon;
 }
 
-Ninja::Ninja(Headquarter *_B, int _number, int _HP, int _Atk, Weapon *_weapon1, Weapon *_weapon2) : Samurai(_B, _number, _HP, _Atk)
-{
-	weapon[0] = _weapon1;
-	weapon[1] = _weapon2;
-}
+Ninja::Ninja(Headquarter *_B, int _number, int _HP, int _Atk) : Samurai(_B, _number, _HP, _Atk){};
 string Ninja::getinfo() const
 {
 	string ret = "It has";
-	if (weapon[0])
-		ret += " a " + weapon[0]->getname();
-	if (weapon[1])
-		ret += " and a " + weapon[1]->getname();
+	// if (weapon[0])
+	// 	ret += " a " + weapon[0]->getname();
+	// if (weapon[1])
+	// 	ret += " and a " + weapon[1]->getname();
 	return ret;
 }
 Samurai *Ninja::generate(Headquarter *info) const
@@ -54,35 +51,34 @@ Samurai *Ninja::generate(Headquarter *info) const
 	if (info->getHP() < getHP())
 		return NULL;
 	int cnt = info->getCount() + 1;
-	return new Ninja(info, cnt, getHP(), getAtk(), info->getweapon(cnt % 3), info->getweapon((cnt + 1) % 3));
+	Samurai* ret = new Ninja(info, cnt, getHP(), getAtk() );
+	ret->addweapon(info->getweapon(cnt % 3));
+	ret->addweapon(info->getweapon((cnt + 1) % 3));
+	return ret;
 }
-Ninja::~Ninja()
-{
-	if (weapon[0])
-		delete weapon[0];
-	if (weapon[1])
-		delete weapon[1];
+Ninja::~Ninja(){
+	
 }
 
-Iceman::Iceman(Headquarter *_B, int _number, int _HP, int _Atk, Weapon *_weapon) : Samurai(_B, _number, _HP, _Atk), weapon(_weapon){};
+Iceman::Iceman(Headquarter *_B, int _number, int _HP, int _Atk) : Samurai(_B, _number, _HP, _Atk){};
 string Iceman::getinfo() const
 {
-	return "It has a " + ((weapon != NULL) ? weapon->getname() : "");
+	return "It has a ";// + ((weapon != NULL) ? weapon->getname() : "");
 }
 Samurai *Iceman::generate(Headquarter *info) const
 {
 	if (info->getHP() < getHP())
 		return NULL;
 	int cnt = info->getCount() + 1;
-	return new Iceman(info, cnt, getHP(), getAtk(), info->getweapon(cnt % 3));
+	Samurai* ret= new Iceman(info, cnt, getHP(), getAtk());
+	ret->addweapon(info->getweapon(cnt % 3));
+	return ret;
 }
 Iceman::~Iceman()
 {
-	if (weapon)
-		delete weapon;
 }
 
-Lion::Lion(Headquarter *_B, int _number, int _HP, int _Atk, int _loyalty) : Samurai(_B, _number, _HP, _Atk), loyalty(_loyalty){};
+Lion::Lion(Headquarter *_B, int _number, int _HP, int _Atk, int _loyalty, int _LDec) : Samurai(_B, _number, _HP, _Atk), loyalty(_loyalty), LDec(_LDec){};
 string Lion::getinfo() const
 {
 	return "It's loyalty is " + to_string(loyalty);
@@ -93,6 +89,10 @@ Samurai *Lion::generate(Headquarter *info) const
 		return NULL;
 	int cnt = info->getCount() + 1;
 	return new Lion(info, cnt, getHP(), getAtk(), info->getHP() - getHP());
+}
+string Lion::escape(){
+	if (loyalty<=0) return "";
+	else return get_belong()->getname()+' '+getname()+' '+to_string(getnumber()) + " ran away";
 }
 
 Wolf::Wolf(Headquarter *_B, int _number, int _HP, int _Atk) : Samurai(_B, _number, _HP, _Atk){};
@@ -106,4 +106,24 @@ Samurai *Wolf::generate(Headquarter *info) const
 		return NULL;
 	int cnt = info->getCount() + 1;
 	return new Wolf(info, cnt, getHP(), getAtk());
+}
+string Wolf::rob(Samurai* x){
+	if (x->getname()=="wolf") return "";
+	WeaponBag &tmp = x->getbag();
+	tmp.preliminary([](Weapon*a,Weapon*b) -> bool{
+		if (a->getnumber()!=b->getnumber()) return a->getnumber()<b->getnumber();
+		return a->priority()>b->priority();
+	});///////////////////////////////////////////////////////////////////////////////
+	int t=0;
+	Weapon* first = NULL;
+	for (;t<tmp.size();++t){
+		Weapon* now = tmp.next();
+		if (first==NULL) first=now;
+		if (now->getnumber()!=first->getnumber()) break;
+		if (!addweapon(now)) break;
+	}
+	tmp.pop_top(t);
+	if (t==0) return "";
+	return getfullname() + " took " + to_string(t) + ' ' +first->getname() +" from " +
+	x->getfullname();
 }
