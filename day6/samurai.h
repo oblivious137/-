@@ -32,6 +32,9 @@ Samurai *Dragon::generate(Headquarter *info) const
 	ret->addweapon(info->getweapon(cnt % 3));
 	return ret;
 }
+string Dragon::yelled(){
+	return getfullname()+" yelled in city " + to_string(getpos())+'\n';
+}
 Dragon::~Dragon()
 {
 }
@@ -88,7 +91,10 @@ Samurai *Lion::generate(Headquarter *info) const
 	if (info->getHP() < getHP())
 		return NULL;
 	int cnt = info->getCount() + 1;
-	return new Lion(info, cnt, getHP(), getAtk(), info->getHP() - getHP());
+
+	Samurai* ret= new Lion(info, cnt, getHP(), getAtk(), info->getHP() - getHP(), LDec);
+	ret->addweapon(info->getweapon(cnt % 3));
+	return ret;
 }
 string Lion::escape(){
 	if (loyalty<=0) return "";
@@ -110,10 +116,7 @@ Samurai *Wolf::generate(Headquarter *info) const
 string Wolf::rob(Samurai* x){
 	if (x->getname()=="wolf") return "";
 	WeaponBag &tmp = x->getbag();
-	tmp.preliminary([](Weapon*a,Weapon*b) -> bool{
-		if (a->getnumber()!=b->getnumber()) return a->getnumber()<b->getnumber();
-		return a->priority()>b->priority();
-	});///////////////////////////////////////////////////////////////////////////////
+	tmp.preliminary([](Weapon*a,Weapon*b) -> bool{return !Weapon::CMP(a,b);});
 	int t=0;
 	Weapon* first = NULL;
 	for (;t<tmp.size();++t){
@@ -124,6 +127,5 @@ string Wolf::rob(Samurai* x){
 	}
 	tmp.pop_top(t);
 	if (t==0) return "";
-	return getfullname() + " took " + to_string(t) + ' ' +first->getname() +" from " +
-	x->getfullname();
+	return getfullname() + " took " + to_string(t) + ' ' +first->getname() +" from " + x->getfullname();
 }

@@ -9,6 +9,7 @@
 #include <functional>
 #include "headquarter.h"
 #include "samurai.h"
+#include "weapon.h"
 using namespace std;
 
 int main()

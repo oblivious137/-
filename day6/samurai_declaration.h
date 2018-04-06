@@ -37,7 +37,12 @@ class Samurai
 	int getpos() { return Position; }
 	void setpos(int x) { Position = x; }
 	void setdirect(int x) { Direction = x; }
-	void move() {}
+	void hurted(int x){HealthPoint-=x;}
+	virtual void moveeffect() {}
+	bool isdead(){return HealthPoint<=0;}
+	int get_outputlevel(){return Position*100 + belong->get_outputlevel();}
+	virtual string yelled(){return "";}
+	friend bool BattleFirst(Samurai* a, Samurai* b){return (a->getpos()&1)&&(a->get_belong()->get_pos()==0)||(~a->getpos()&1)&&(a->get_belong()->get_pos()!=0);}
 };
 
 class Dragon : public Samurai
@@ -50,6 +55,7 @@ class Dragon : public Samurai
 	virtual ~Dragon();
 	virtual string getinfo() const;
 	Samurai *generate(Headquarter *info) const;
+	string yelled();
 };
 
 class Ninja : public Samurai
@@ -72,6 +78,7 @@ class Iceman : public Samurai
 	virtual ~Iceman();
 	virtual string getinfo() const;
 	Samurai *generate(Headquarter *info) const;
+	void moveeffect(){hurted(getHP()*0.1);}
 };
 
 class Lion : public Samurai
@@ -85,6 +92,7 @@ class Lion : public Samurai
 	virtual ~Lion() = default;
 	virtual string getinfo() const;
 	Samurai *generate(Headquarter *info) const;
+	void moveeffect (){loyalty-=LDec;}
 	string escape();
 };
 

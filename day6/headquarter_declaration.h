@@ -105,4 +105,7 @@ class BattleField
 public:
 	BattleField(int n, Headquarter a, Headquarter b);
 	void Run();
+	void BuildTurn();
+	int MoveTurn();
+	void BattleTurn();
 };
