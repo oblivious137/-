@@ -16,7 +16,7 @@ using namespace std;
 
 class Headquarter
 {
-private:
+  private:
 	string name;
 	vector<Samurai *> Order;
 	vector<function<Weapon *()>> Weapons;
@@ -25,10 +25,10 @@ private:
 	bool stopped = false;
 	int posi, dire, outputlevel;
 
-public:
+  public:
 	Headquarter(const string &_name, int _HP,
-							const vector<Samurai *> &_Order,
-							const vector<function<Weapon *()>> &_Weapons);
+				const vector<Samurai *> &_Order,
+				const vector<function<Weapon *()>> &_Weapons);
 	void Stop();
 	bool isstopped() { return stopped; }
 	tuple<Samurai *, string> Build_SA();
@@ -46,14 +46,16 @@ public:
 	int get_outputlevel() const { return outputlevel; }
 	void set_outputlevel(int x) { outputlevel = x; }
 	string getname() const { return name; }
+	~Headquarter();
 };
 
 class TIME
 {
 	int minutes;
 
-public:
+  public:
 	TIME() = default;
+	TIME(int x) : minutes(x){};
 	void inc(int a) { minutes += a; }
 	void Print()
 	{
@@ -65,19 +67,15 @@ public:
 		sprintf(tmp, "%03d:%02d", minutes / 60, minutes % 60);
 		return tmp;
 	}
-};
-
-class _OUTPUT_CMP
-{
-public:
-	bool operator()(const Samurai *const a, const Samurai *const b)const;
+	bool operator<(const TIME t) { return minutes < t.minutes; }
+	bool operator>(const TIME t) { return minutes > t.minutes; }
 };
 
 class OrderedOutput
 {
 	vector<pair<int, string>> data;
 
-public:
+  public:
 	void push(int t, string x) { data.push_back(make_pair(t, x)); }
 	void flush()
 	{
@@ -99,13 +97,14 @@ class BattleField
 	TIME T;
 	int Size;
 	Headquarter HeadA, HeadB;
-	typedef set<Samurai *, _OUTPUT_CMP> SamuraiSet;
+	typedef set<Samurai *> SamuraiSet;
 	SamuraiSet *city;
 
-public:
+  public:
 	BattleField(int n, Headquarter a, Headquarter b);
-	void Run();
+	void Run(TIME);
 	void BuildTurn();
 	int MoveTurn();
 	void BattleTurn();
+	~BattleField();
 };
