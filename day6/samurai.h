@@ -4,6 +4,9 @@
 #include "weapon_declaration.h"
 
 Samurai::Samurai(Headquarter *_B, int _number, int _HP, int _Atk) : belong(_B), Number(_number), HealthPoint(_HP), Attack(_Atk){};
+string Samurai::getfullname()const { return belong->getname() + ' ' + getname() + ' ' + to_string(Number); }
+int Samurai::get_outputlevel() const{ return Position * 100 + belong->get_outputlevel(); }
+bool BattleFirst(Samurai *a, Samurai *b) { return (a->getpos() & 1) && (a->get_belong()->get_pos() == 0) || (~a->getpos() & 1) && (a->get_belong()->get_pos() != 0); }
 int Samurai::get_direct()const
 {
 	return belong->get_direct();

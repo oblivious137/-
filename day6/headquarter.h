@@ -8,8 +8,11 @@
 Headquarter::Headquarter(const string &_name, int _HP,
                          const vector<Samurai *> &_Order,
                          const vector<function<Weapon *()>> &_Weapons) : name(_name), HealthPoint(_HP), Order(_Order),
-                                                                         Weapons(_Weapons), ExistNumber(_Order.size(), 0)
-{
+                                                                         Weapons(_Weapons), ExistNumber(_Order.size(), 0) {};
+Headquarter::Headquarter(const Headquarter& a):name(a.name), HealthPoint(a.HealthPoint), Order(a.Order), Weapons(a.Weapons), ExistNumber(a.ExistNumber){
+	for (auto &x:Order){
+		x = x->copy();
+	}
 }
 
 unsigned int Headquarter::getOrderSize() { return Order.size(); }
@@ -28,7 +31,7 @@ void Headquarter::Stop()
 tuple<Samurai *, string> Headquarter::Build_SA()
 {
     if (stopped)
-        return {NULL, ""};
+        return make_tuple<Samurai *, string>(NULL, "");
     
     if (OnWitch >= Order.size())
         OnWitch -= Order.size();
@@ -44,11 +47,11 @@ tuple<Samurai *, string> Headquarter::Build_SA()
             ret = tmp->getfullname() + " born\n" + ret;
         else
             ret = tmp->getfullname() + " born";
-        return {tmp, ret};
+        return make_tuple(tmp, ret);
     }
     ++OnWitch;
     Stop();
-    return {NULL, ""};
+    return make_tuple<Samurai *, string>(NULL, "");
 }
 
 Headquarter::~Headquarter(){
@@ -166,12 +169,10 @@ int BattleField::MoveTurn()
 
 void BattleField::BattleTurn()
 {
-
     OrderedOutput output;
     for (int i = 0; i <= Size; ++i)
         if (city[i].size() == 2)
         {
-
             Samurai *a = *city[i].begin();
             Samurai *b = *city[i].rbegin();
             (a->getbag()).preliminary();
@@ -195,6 +196,7 @@ void BattleField::BattleTurn()
                     break;
                 swap(a, b);
             }
+
             //Confirm result
             if (a->isdead() ^ b->isdead())
             {
@@ -322,8 +324,9 @@ void BattleField::Run(TIME limit)
         /********* Report **********/
         T.inc(10);
         if (T>limit) break;
-        cout << T.sPrint() << ' ' << to_string(HeadA.getHP()) << " elements in " << HeadA.getname() << " headquarter\n";
-        cout << T.sPrint() << ' ' << to_string(HeadB.getHP()) << " elements in " << HeadB.getname() << " headquarter\n";
+        output.push(HeadA.get_outputlevel(), T.sPrint() + ' ' + to_string(HeadA.getHP()) + " elements in " + HeadA.getname() + " headquarter\n");
+        output.push(HeadB.get_outputlevel(), T.sPrint() + ' ' + to_string(HeadB.getHP()) + " elements in " + HeadB.getname() + " headquarter\n");
+		output.flush();
 
         T.inc(5);
         if (T>limit) break;
@@ -341,4 +344,5 @@ BattleField::~BattleField(){
     for (int i=0;i<Size;++i){
         for (auto x: city[i]) delete x;
     }
+    delete []city;
 }

@@ -126,6 +126,7 @@ class WeaponBag
 			else
 				return *(_now++);
 		}
+		return NULL;
 	}
 	bool push(Weapon *x) { return (weapons.size() < VolumeLimit) ? weapons.push_back(x), true : false; }
 	int size() { return weapons.size(); }

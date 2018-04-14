@@ -37,8 +37,6 @@ int main()
 		W.push_back([]() -> Weapon * { return (Weapon *)new Bomb("bomb", 0.4, 1); });
 		W.push_back([]() -> Weapon * { return (Weapon *)new Arrow("arrow", 0.3, 2); });
 
-		Weapon* test = (Weapon*) new Arrow();
-
 		Headquarter red("red", M, AS, W), blue("blue", M, BS, W);
 
 		BattleField B(N, red, blue);

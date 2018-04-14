@@ -12,6 +12,8 @@
 #include <tuple>
 using namespace std;
 
+// bool debug,attack_debug;
+
 /******* Weapon ********/
 class Weapon;
 class WeaponBag;
@@ -141,6 +143,7 @@ class WeaponBag
 			else
 				return *(_now++);
 		}
+		return NULL;
 	}
 	bool push(Weapon *x) { return (weapons.size() < VolumeLimit) ? weapons.push_back(x), true : false; }
 	int size() { return weapons.size(); }
@@ -173,8 +176,8 @@ class WeaponBag
 	}
 	~WeaponBag()
 	{
-		// for (auto &x : weapons)
-		// 	delete x;
+		for (auto &x : weapons)
+			delete x;
 	}
 };
 
@@ -210,6 +213,7 @@ class Samurai
 	virtual string yelled() { return ""; }
 	string report() { return getfullname() + " has " + bag.report() + " and " + to_string(getHP()) + " elements"; }
 	friend bool BattleFirst(Samurai *a, Samurai *b);
+	virtual Samurai* copy() = 0;
 };
 
 class Dragon : public Samurai
@@ -221,6 +225,11 @@ class Dragon : public Samurai
 	string getname() const { return "dragon"; }
 	~Dragon() = default;
 	Samurai *generate(Headquarter *info) const;
+	Samurai* copy(){
+		Dragon* ret = new Dragon();
+		memcpy(ret, this, sizeof(Dragon));
+		return ret;
+	}
 	string yelled();
 };
 
@@ -232,6 +241,11 @@ class Ninja : public Samurai
 	string getname() const { return "ninja"; }
 	~Ninja() = default;
 	Samurai *generate(Headquarter *info) const;
+	Samurai* copy(){
+		Ninja* ret = new Ninja();
+		memcpy(ret, this, sizeof(Ninja));
+		return ret;
+	}
 };
 
 class Iceman : public Samurai
@@ -243,6 +257,11 @@ class Iceman : public Samurai
 	~Iceman() = default;
 	Samurai *generate(Headquarter *info) const;
 	void moveeffect() { hurted(getHP() * (0.1 + 1e-8)); }
+	Samurai* copy(){
+		Iceman* ret = new Iceman();
+		memcpy(ret, this, sizeof(Iceman));
+		return ret;
+	}
 };
 
 class Lion : public Samurai
@@ -258,6 +277,11 @@ class Lion : public Samurai
 	Samurai *generate(Headquarter *info) const;
 	void moveeffect() { loyalty -= LDec; }
 	string escape();
+	Samurai* copy(){
+		Lion* ret = new Lion();
+		memcpy(ret, this, sizeof(Lion));
+		return ret;
+	}
 };
 
 class Wolf : public Samurai
@@ -269,6 +293,11 @@ class Wolf : public Samurai
 	~Wolf() = default;
 	Samurai *generate(Headquarter *info) const;
 	string rob(Samurai *);
+	Samurai* copy(){
+		Wolf* ret = new Wolf();
+		memcpy(ret, this, sizeof(Wolf));
+		return ret;
+	}
 };
 
 class Headquarter
@@ -286,6 +315,7 @@ class Headquarter
 	Headquarter(const string &_name, int _HP,
 				const vector<Samurai *> &_Order,
 				const vector<function<Weapon *()>> &_Weapons);
+	Headquarter(const Headquarter&);
 	void Stop();
 	bool isstopped() { return stopped; }
 	tuple<Samurai *, string> Build_SA();
@@ -371,17 +401,16 @@ class BattleField
 Headquarter::Headquarter(const string &_name, int _HP,
                          const vector<Samurai *> &_Order,
                          const vector<function<Weapon *()>> &_Weapons) : name(_name), HealthPoint(_HP), Order(_Order),
-                                                                         Weapons(_Weapons), ExistNumber(_Order.size(), 0)
-{
+                                                                         Weapons(_Weapons), ExistNumber(_Order.size(), 0){};
+Headquarter::Headquarter(const Headquarter& a):name(a.name), HealthPoint(a.HealthPoint), Order(a.Order), Weapons(a.Weapons), ExistNumber(a.ExistNumber){
+	for (auto &x:Order){
+		x = x->copy();
+	}
 }
 
 unsigned int Headquarter::getOrderSize() { return Order.size(); }
 Weapon *Headquarter::getweapon(int x) const { 
-	Weapon* ret =Weapons[x]();
-	
-//	printf("build weapon %s\n", ret->getname().c_str());
-
-	return ret;
+	return Weapons[x]();
 }
 
 void Headquarter::Stop()
@@ -419,11 +448,7 @@ tuple<Samurai *, string> Headquarter::Build_SA()
 }
 
 Headquarter::~Headquarter(){
-    // fprintf(stderr,"%u\n", Order.size());
-    // for (auto x:Order){
-    //     fprintf(stderr, "name : %s\n", x->getname().c_str());
-    //     delete x;
-    // }
+    for (auto x:Order) delete x;
 }
 
 /******* BattleField *******/
@@ -537,20 +562,18 @@ int BattleField::MoveTurn()
 
 void BattleField::BattleTurn()
 {
-
     OrderedOutput output;
     for (int i = 0; i <= Size; ++i)
         if (city[i].size() == 2)
         {
-
             Samurai *a = *city[i].begin();
             Samurai *b = *city[i].rbegin();
             (a->getbag()).preliminary();
             (b->getbag()).preliminary();
             if (!BattleFirst(a, b))
                 swap(a, b);
-
-            //Process
+            
+			//Process
             int flg = max(a->getbag().size(), b->getbag().size()) * 2 + 3;
             while ((a->getbag().size() || b->getbag().size()) && flg)
             {
@@ -566,7 +589,8 @@ void BattleField::BattleTurn()
                     break;
                 swap(a, b);
             }
-            //Confirm result
+
+			//Confirm result
             if (a->isdead() ^ b->isdead())
             {
                 if (a->isdead())
@@ -689,13 +713,14 @@ void BattleField::Run(TIME limit)
         if (T>limit) break;
         /********* Battle Begin *********/
         BattleTurn();
-
+		
         /********* Report **********/
         T.inc(10);
         if (T>limit) break;
-        cout << T.sPrint() << ' ' << to_string(HeadA.getHP()) << " elements in " << HeadA.getname() << " headquarter\n";
-        cout << T.sPrint() << ' ' << to_string(HeadB.getHP()) << " elements in " << HeadB.getname() << " headquarter\n";
-
+        output.push(HeadA.get_outputlevel(), T.sPrint() + ' ' + to_string(HeadA.getHP()) + " elements in " + HeadA.getname() + " headquarter\n");
+        output.push(HeadB.get_outputlevel(), T.sPrint() + ' ' + to_string(HeadB.getHP()) + " elements in " + HeadB.getname() + " headquarter\n");
+		output.flush();
+		
         T.inc(5);
         if (T>limit) break;
         for (int i = 0; i <= Size; ++i)
@@ -709,9 +734,10 @@ void BattleField::Run(TIME limit)
 }
 
 BattleField::~BattleField(){
-    // for (int i=0;i<Size;++i){
-    //     for (auto x: city[i]) delete x;
-    // }
+    for (int i=0;i<Size;++i){
+        for (auto x: city[i]) delete x;
+    }
+	delete []city;
 }
 
 int Sword::attack(Samurai *a, Samurai *b)
@@ -851,8 +877,6 @@ string Wolf::rob(Samurai* x){
 
 int main()
 {
-	freopen("datapub.in", "r", stdin);
-	freopen("out.out", "w", stdout);
 	int T = 0;
 	scanf("%d", &T);
 	for (int cas = 1; cas <= T; ++cas)
@@ -874,8 +898,6 @@ int main()
 		W.push_back([]() -> Weapon * { return (Weapon *)new Sword("sword", 0.2); });
 		W.push_back([]() -> Weapon * { return (Weapon *)new Bomb("bomb", 0.4, 1); });
 		W.push_back([]() -> Weapon * { return (Weapon *)new Arrow("arrow", 0.3, 2); });
-
-		Weapon* test = (Weapon*) new Arrow();
 
 		Headquarter red("red", M, AS, W), blue("blue", M, BS, W);
 

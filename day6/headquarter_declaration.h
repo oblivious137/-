@@ -29,6 +29,7 @@ class Headquarter
 	Headquarter(const string &_name, int _HP,
 				const vector<Samurai *> &_Order,
 				const vector<function<Weapon *()>> &_Weapons);
+	Headquarter(const Headquarter&);
 	void Stop();
 	bool isstopped() { return stopped; }
 	tuple<Samurai *, string> Build_SA();
