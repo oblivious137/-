@@ -45,6 +45,7 @@ class Samurai
 	string report() { return getfullname() + " has " + bag.report() + " and " + to_string(getHP()) + " elements"; }
 	friend bool BattleFirst(Samurai *a, Samurai *b);
 	virtual Samurai* copy() = 0;
+	virtual int reatack() = 0;
 };
 
 class Dragon : public Samurai
