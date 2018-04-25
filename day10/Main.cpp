@@ -20,29 +20,37 @@ int main()
 	for (int cas = 1; cas <= T; ++cas)
 	{
 		printf("Case %d:\n", cas);
-		int M, N, K, D;
-		scanf("%d%d%d%d", &M, &N, &K, &D);
+		int M, N, R, K, D;
+		scanf("%d%d%d%d%d", &M, &N, &R, &K, &D);
 		int hp[5], atk[5];
 		for (int i = 0; i < 5; ++i)
 			scanf("%d", &hp[i]);
 		for (int i = 0; i < 5; ++i)
 			scanf("%d", &atk[i]);
 
-		vector<function<Samurai *(Headquarter*)>> AS({bind(Iceman::generate,placeholders::_1,hp[2],atk[2]), bind(Lion::generate, placeholders::_1, hp[3], atk[3], K),
-			bind(Wolf::generate,placeholders::_1, hp[4], atk[4]), bind(Ninja::generate, placeholders::_1, hp[1], atk[1]),
-			bind(Dragon::generate, placeholders::_1, hp[0], atk[0])});
-		vector<function<Samurai *(Headquarter*)>> BS({ bind(Lion::generate, placeholders::_1, hp[3], atk[3], K), bind(Dragon::generate, placeholders::_1, hp[0], atk[0]),
-			bind(Ninja::generate, placeholders::_1, hp[1], atk[1]), bind(Iceman::generate,placeholders::_1,hp[2],atk[2]),
-			bind(Wolf::generate,placeholders::_1, hp[4], atk[4]) });
-		vector<function<Weapon *()>> W;
-		W.push_back([]() -> Weapon * { return (Weapon *)new Sword("sword", 0.2); });
-		W.push_back([]() -> Weapon * { return (Weapon *)new Bomb("bomb", 0.4, 1); });
-		W.push_back([]() -> Weapon * { return (Weapon *)new Arrow("arrow", 0.3, 2); });
+		vector<function<Samurai *(Headquarter *)>> AS;
+		AS.push_back(bind(Iceman::generate, placeholders::_1, hp[2], atk[2]));
+		AS.push_back(bind(Lion::generate, placeholders::_1, hp[3], atk[3], K));
+		AS.push_back(bind(Wolf::generate, placeholders::_1, hp[4], atk[4]));
+		AS.push_back(bind(Ninja::generate, placeholders::_1, hp[1], atk[1]));
+		AS.push_back(bind(Dragon::generate, placeholders::_1, hp[0], atk[0]));
 
-		Headquarter red("red", M, AS, W), blue("blue", M, BS, W);
+		vector<function<Samurai *(Headquarter *)>> BS;
+		BS.push_back(bind(Lion::generate, placeholders::_1, hp[3], atk[3], K));
+		BS.push_back(bind(Dragon::generate, placeholders::_1, hp[0], atk[0]));
+		BS.push_back(bind(Ninja::generate, placeholders::_1, hp[1], atk[1]));
+		BS.push_back(bind(Iceman::generate, placeholders::_1, hp[2], atk[2]));
+		BS.push_back(bind(Wolf::generate, placeholders::_1, hp[4], atk[4]));
 
-		BattleField B(N, red, blue);
-		B.Run(D);
+		vector<function<Weapon *(Samurai *)>> W;
+		W.push_back(bind(Sword::generate, placeholders::_1, 0.2, 0.8));
+		W.push_back(bind(Arrow::generate, placeholders::_1, R, 3));
+		W.push_back(bind(Bomb::generate, placeholders::_1, 1));
+
+		// Headquarter red("red", M, AS, W), blue("blue", M, BS, W);
+
+		// BattleField B(N, red, blue);
+		// B.Run(D);
 	}
 	return 0;
 }
