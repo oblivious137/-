@@ -15,23 +15,21 @@ class Weapon
 {
   private:
 	string name;
-	//int _attack;
-	double ratio;
+	int attack;
 
   public:
 	static const int _weaponkinds = 3;
 	static const string _weaponnames[3];
 	Weapon() = default;
-	Weapon(const std::string &_name = "", double _ratio = 0) : name(_name), ratio(_ratio+1e-8){};
-	void setattack(int a){};  /*************/
-	void setname(string a){}; /*************/
+	Weapon(const std::string &_name = "", int _atk = 0) : name(_name), attack(_atk){};
+	void setAtk(int a) { attack = a; };
+	void setname(string a) { name = a; };
 	string getname() { return name; }
-	// int getattack() { return _attack; }
-	double getratio() { return ratio; }
+	int getAtk() { return attack; }
 	virtual int getnumber() = 0;
 	virtual int priority() { return 0; }
 	virtual bool bethrown() { return this == NULL; }
-	virtual int attack(Samurai *a, Samurai *b) { return 0; } //bits: B_hurted, A_hurted, Weapon_hurted
+	virtual int attack(Samurai *a, Samurai *b) { return 0; } //bits: B_hurted, A_hurted, Weapon_worn
 	static bool CMP(Weapon *a, Weapon *b)
 	{
 		if (a->getnumber() != b->getnumber())
@@ -50,19 +48,24 @@ const string Weapon::_weaponnames[3] = {"sword", "bomb", "arrow"};
 class Sword : Weapon
 {
   public:
-	Sword(string name = "", double ratio = 0.0) : Weapon(name, ratio){};
+	double worn_ratio;
+	Sword(string name = "", int _atk = 0, double _ratio = 0) : Weapon(name, _atk), worn_ratio(_ratio){};
 	virtual int getnumber() { return 0; }
+	bool bethrown() { return getAtk() <= 0; }
 	int attack(Samurai *, Samurai *);
+	static Weapon *generate(Samurai *, double, double);
 };
 
 class Bomb : Weapon
 {
 	int times;
+
   public:
-	Bomb(string name = "", double ratio = 0.0, int limit = 0) : Weapon(name, ratio), times(limit){};
+	Bomb(string name = "", int _atk = 0, int limit = 0) : Weapon(name, _atk), times(limit){};
 	virtual int getnumber() { return 1; }
 	int attack(Samurai *, Samurai *);
 	bool bethrown() { return times <= 0; }
+	static Weapon *generate(Samurai *, int);
 };
 
 class Arrow : Weapon
@@ -70,12 +73,12 @@ class Arrow : Weapon
 	int times;
 
   public:
-	Arrow(string name = "", double ratio = 0.0, int limit = 0) : Weapon(name, ratio), times(limit){};
+	Arrow(string name = "", int _atk = 0, int limit = 0) : Weapon(name, _atk), times(limit){};
 	virtual int getnumber() { return 2; }
 	int priority() { return times; }
 	int attack(Samurai *, Samurai *);
 	bool bethrown() { return times <= 0; }
-	Weapon* build(){return new Arrow();}
+	static Weapon *generate(Samurai *, int, int);
 };
 
 class WeaponBag
@@ -85,7 +88,7 @@ class WeaponBag
 	vector<Weapon *>::iterator _now;
 
   public:
-	  WeaponBag() : VolumeLimit(10) {};
+	WeaponBag() : VolumeLimit(10){};
 	void set_limit(int x) { VolumeLimit = x; }
 	void preliminary(bool (*x)(Weapon *, Weapon *) = Weapon::CMP)
 	{
@@ -151,7 +154,8 @@ class WeaponBag
 			int ed = st;
 			while (ed < size() && weapons[ed]->getnumber() == i)
 				++ed;
-			if (i != 0) ret.append(" ");
+			if (i != 0)
+				ret.append(" ");
 			ret += to_string(ed - st) + ' ' + Weapon::_weaponnames[i];
 			st = ed;
 		}
