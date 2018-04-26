@@ -17,9 +17,10 @@ class Samurai
 	Headquarter *belong;
 	WeaponBag bag;
 	int Number, HealthPoint, Attack, Position;
+	double reattack_ratio;
 
   public:
-	Samurai(Headquarter *_B = NULL, int _number = 0, int _HP = 0, int _Atk = 0);
+	Samurai(Headquarter *_B = NULL, int _number = 0, int _HP = 0, int _Atk = 0, double _reatack = 0);
 	void setbelong(Headquarter *x) { belong = x; }
 	virtual string getname() const = 0;
 	int getHP() const { return HealthPoint; }
@@ -44,8 +45,8 @@ class Samurai
 	virtual string yelled() { return ""; }
 	string report() { return getfullname() + " has " + bag.report() + " and " + to_string(getHP()) + " elements"; }
 	friend bool BattleFirst(Samurai *a, Samurai *b);
-	virtual Samurai* copy() = 0;
-	virtual int reatack() = 0;
+	virtual Samurai *copy() = 0;
+	virtual int reatack() { return getAtk() * reattack_ratio + 1e-8; };
 };
 
 class Dragon : public Samurai
@@ -57,8 +58,9 @@ class Dragon : public Samurai
 	string getname() const { return "dragon"; }
 	~Dragon() = default;
 	static Samurai *generate(Headquarter *info, int _HP, int _Atk);
-	Samurai* copy(){
-		Dragon* ret = new Dragon();
+	Samurai *copy()
+	{
+		Dragon *ret = new Dragon();
 		memcpy(ret, this, sizeof(Dragon));
 		return ret;
 	}
@@ -73,8 +75,9 @@ class Ninja : public Samurai
 	string getname() const { return "ninja"; }
 	~Ninja() = default;
 	static Samurai *generate(Headquarter *info, int _HP, int _Atk);
-	Samurai* copy(){
-		Ninja* ret = new Ninja();
+	Samurai *copy()
+	{
+		Ninja *ret = new Ninja();
 		memcpy(ret, this, sizeof(Ninja));
 		return ret;
 	}
@@ -89,8 +92,9 @@ class Iceman : public Samurai
 	~Iceman() = default;
 	static Samurai *generate(Headquarter *info, int _HP, int _Atk);
 	void moveeffect() { hurted(getHP() * (0.1 + 1e-8)); }
-	Samurai* copy(){
-		Iceman* ret = new Iceman();
+	Samurai *copy()
+	{
+		Iceman *ret = new Iceman();
 		memcpy(ret, this, sizeof(Iceman));
 		return ret;
 	}
@@ -109,8 +113,9 @@ class Lion : public Samurai
 	static Samurai *generate(Headquarter *info, int _HP, int _Atk, int _LDec);
 	void moveeffect() { loyalty -= LDec; }
 	string escape();
-	Samurai* copy(){
-		Lion* ret = new Lion();
+	Samurai *copy()
+	{
+		Lion *ret = new Lion();
 		memcpy(ret, this, sizeof(Lion));
 		return ret;
 	}
@@ -125,8 +130,9 @@ class Wolf : public Samurai
 	~Wolf() = default;
 	static Samurai *generate(Headquarter *info, int _HP, int _Atk);
 	string rob(Samurai *);
-	Samurai* copy(){
-		Wolf* ret = new Wolf();
+	Samurai *copy()
+	{
+		Wolf *ret = new Wolf();
 		memcpy(ret, this, sizeof(Wolf));
 		return ret;
 	}

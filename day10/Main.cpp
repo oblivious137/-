@@ -47,10 +47,10 @@ int main()
 		W.push_back(bind(Arrow::generate, placeholders::_1, R, 3));
 		W.push_back(bind(Bomb::generate, placeholders::_1, 1));
 
-		// Headquarter red("red", M, AS, W), blue("blue", M, BS, W);
+		Headquarter red("red", M, AS, W), blue("blue", M, BS, W);
 
-		// BattleField B(N, red, blue);
-		// B.Run(D);
+		BattleField B(N, red, blue);
+		B.Run(D);
 	}
 	return 0;
 }

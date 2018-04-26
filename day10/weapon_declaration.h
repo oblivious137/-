@@ -15,21 +15,22 @@ class Weapon
 {
   private:
 	string name;
-	int attack;
+	int Atk;
 
   public:
 	static const int _weaponkinds = 3;
 	static const string _weaponnames[3];
 	Weapon() = default;
-	Weapon(const std::string &_name = "", int _atk = 0) : name(_name), attack(_atk){};
-	void setAtk(int a) { attack = a; };
+	Weapon(const std::string &_name = "", int _atk = 0) : name(_name), Atk(_atk){};
+	void setAtk(int a) { Atk = a; };
 	void setname(string a) { name = a; };
 	string getname() { return name; }
-	int getAtk() { return attack; }
+	int getAtk() { return Atk; }
 	virtual int getnumber() = 0;
 	virtual int priority() { return 0; }
 	virtual bool bethrown() { return this == NULL; }
 	virtual int attack(Samurai *a, Samurai *b) { return 0; } //bits: B_hurted, A_hurted, Weapon_worn
+	virtual bool canshot() { return false; };
 	static bool CMP(Weapon *a, Weapon *b)
 	{
 		if (a->getnumber() != b->getnumber())
@@ -79,6 +80,7 @@ class Arrow : Weapon
 	int attack(Samurai *, Samurai *);
 	bool bethrown() { return times <= 0; }
 	static Weapon *generate(Samurai *, int, int);
+	bool canshot() { return true; }
 };
 
 class WeaponBag
@@ -128,6 +130,17 @@ class WeaponBag
 				throwit(_now);
 			else
 				return *(_now++);
+		}
+		return NULL;
+	}
+	Weapon *canshot()
+	{
+		preliminary();
+		Weapon *p;
+		while (p = next())
+		{
+			if (p->canshot())
+				return p;
 		}
 		return NULL;
 	}

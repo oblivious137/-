@@ -6,41 +6,32 @@
 /********* Headquarter ***********/
 
 Headquarter::Headquarter(const string &_name, int _HP,
-                         const vector<function<Samurai *(Headquarter*)>> &_Order,
-                         const vector<function<Weapon *()>> &_Weapons) : name(_name), HealthPoint(_HP), Order(_Order),
-                                                                         Weapons(_Weapons), ExistNumber(_Order.size(), 0) {};
-Headquarter::Headquarter(const Headquarter& a) :name(a.name), HealthPoint(a.HealthPoint), Order(a.Order), Weapons(a.Weapons), ExistNumber(a.ExistNumber) {}
+                         const vector<function<Samurai *(Headquarter *)>> &_Order,
+                         const vector<function<Weapon *(Samurai *)>> &_Weapons) : name(_name), HealthPoint(_HP), Order(_Order),
+                                                                                  Weapons(_Weapons), ExistNumber(_Order.size(), 0){};
+Headquarter::Headquarter(const Headquarter &a) : name(a.name), HealthPoint(a.HealthPoint), Order(a.Order), Weapons(a.Weapons), ExistNumber(a.ExistNumber) {}
 
-int Headquarter::generateNextSamurai(int _HP) {
-	HealthPoint -= _HP;
-	return ++Count;
+int Headquarter::generateNextSamurai(int _HP)
+{
+    HealthPoint -= _HP;
+    return ++Count;
 }
 
 unsigned int Headquarter::getOrderSize() { return Order.size(); }
-Weapon *Headquarter::getweapon(int x) const {
-	return Weapons[x]();
-}
-
-void Headquarter::Stop()
+Weapon *Headquarter::getweapon(int x, Samurai *who) const
 {
-    if (stopped)
-        return;
-    stopped = true;
-    return;
+    return Weapons[x](who);
 }
 
 tuple<Samurai *, string> Headquarter::Build_SA()
 {
-    if (stopped)
-        return make_tuple<Samurai *, string>(NULL, "");
-    
-    if (OnWitch >= Order.size())
-        OnWitch -= Order.size();
     Samurai *tmp = Order[OnWitch](this);
     if (tmp)
     {
         ++ExistNumber[OnWitch];
         ++OnWitch;
+        if (OnWitch >= Order.size())
+            OnWitch -= Order.size();
         string ret = tmp->borninfo();
         if (ret != "")
             ret = tmp->getfullname() + " born\n" + ret;
@@ -48,9 +39,16 @@ tuple<Samurai *, string> Headquarter::Build_SA()
             ret = tmp->getfullname() + " born";
         return make_tuple(tmp, ret);
     }
-    ++OnWitch;
-    Stop();
     return make_tuple<Samurai *, string>(NULL, "");
+}
+
+/******* City *********/
+
+int City::lostHP()
+{
+    int ret = HP;
+    HP = 0;
+    return ret;
 }
 
 /******* BattleField *******/
@@ -63,7 +61,8 @@ BattleField::BattleField(int n, Headquarter a, Headquarter b) : Size(n + 1), Hea
     HeadB.set_direct(-1);
     HeadA.set_outputlevel(1);
     HeadB.set_outputlevel(2);
-    city = new SamuraiSet[n + 2];
+    city = new City[n + 2];
+    for (int i=0;i<=Size;++i) city[i].set_pos(i);
 }
 
 void BattleField::BuildTurn()
@@ -89,7 +88,7 @@ int BattleField::MoveTurn()
     OrderedOutput output;
     for (int i = 0; i <= Size; ++i)
     {
-		vector<Samurai*> tmp;
+        vector<Samurai *> tmp;
         for (auto x : city[i])
         {
             if (x->get_direct() < 0)
@@ -97,19 +96,20 @@ int BattleField::MoveTurn()
                 int aim = i + x->get_direct();
                 if (aim >= 0 && aim <= Size)
                 {
-					tmp.push_back(x);
+                    tmp.push_back(x);
                     city[aim].insert(x);
-                    x->moveeffect();
+                    // x->moveeffect();
                     x->setpos(aim);
                 }
             }
         }
-		for (auto &x : tmp) city[i].erase(x);
+        for (auto &x : tmp)
+            city[i].erase(x);
     }
 
     for (int i = Size; i >= 0; --i)
     {
-		vector<Samurai*> tmp;
+        vector<Samurai *> tmp;
         for (auto x : city[i])
         {
             if (x->get_direct() > 0)
@@ -117,14 +117,15 @@ int BattleField::MoveTurn()
                 int aim = i + x->get_direct();
                 if (aim >= 0 && aim <= Size)
                 {
-					tmp.push_back(x);
+                    tmp.push_back(x);
                     city[aim].insert(x);
-                    x->moveeffect();
+                    // x->moveeffect();
                     x->setpos(aim);
                 }
             }
         }
-		for (auto &x : tmp) city[i].erase(x);
+        for (auto &x : tmp)
+            city[i].erase(x);
     }
 
     for (int i = 1; i < Size; ++i)
@@ -160,13 +161,13 @@ int BattleField::MoveTurn()
         output.flush();
         return -1;
     }
-	return 0;
+    return 0;
 }
 
 void BattleField::BattleTurn()
 {
     OrderedOutput output;
-    for (int i = 0; i <= Size; ++i)
+    for (int i = 1; i < Size; ++i)
         if (city[i].size() == 2)
         {
             Samurai *a = *city[i].begin();
@@ -182,10 +183,11 @@ void BattleField::BattleTurn()
             {
                 --flg;
                 Weapon *x = a->getbag().renext();
-				if (x == NULL) {
-					swap(a, b);
-					continue;
-				}
+                if (x == NULL)
+                {
+                    swap(a, b);
+                    continue;
+                }
                 if (x->attack(a, b) != 0)
                     flg = max(a->getbag().size(), b->getbag().size()) * 2 + 3;
                 if (a->isdead() || b->isdead())
@@ -262,15 +264,16 @@ void BattleField::Run(TIME limit)
     for (;;)
     {
         OrderedOutput output;
-
+        /********* 0' : Build Samurais ********/
         BuildTurn();
+        /********* 5' : Escape ********/
         T.inc(5);
-        if (T>limit) break;
-        /********* Escape ********/
+        if (T > limit)
+            break;
         {
             for (int i = 0; i <= Size; ++i)
             {
-				vector<Samurai*> trash;
+                vector<Samurai *> trash;
                 string tmp;
                 for (auto x : city[i])
                 {
@@ -281,64 +284,88 @@ void BattleField::Run(TIME limit)
                         delete x;
                     }
                 }
-				for (auto& x : trash) city[i].erase(x);
+                for (auto &x : trash)
+                    city[i].erase(x);
             }
             output.flush();
         }
 
+        /******** 10: Move ********/
         T.inc(5);
-        if (T>limit) break;
+        if (T > limit)
+            break;
         if (MoveTurn() == -1)
             break;
 
-        T.inc(25);
-        if (T>limit) break;
-        /********* Wolf robs weapons *********/
-        {
-            for (int i = 0; i <= Size; ++i)
-            {
-                if (city[i].size() == 2)
-                {
-                    Samurai *a = *city[i].begin();
-                    Samurai *b = *city[i].rbegin();
-                    string log = a->rob(b);
-                    if (log != "")
-                        output.push(i, T.sPrint() + ' ' + log + '\n');
-                    log = b->rob(a);
-                    if (log != "")
-                        output.push(i, T.sPrint() + ' ' + log + '\n');
+        /********* 20' : generate HP in cities ********/
+        T.inc(10);
+        if (T > limit)
+            break;
+        for (int i = 1; i < Size; ++i)
+            city[i].generateHP();
+
+        /********* 30' : gain HP from cities ********/
+        T.inc(10);
+        for (int i = 1; i < Size; ++i)
+            if (city[i].size() == 1)
+                (*city[i].begin())->get_belong()->receiveHP(city[i].lostHP());
+
+        /********* 35' : Shot *********/
+        T.inc(5);
+        for (int i=0;i<=Size;++i){
+            Weapon* p;
+            for (auto x : city[i]) if (p=x->getbag().canshot()){
+                int aim = i + x->get_direct();
+                if (aim>=0&&aim<=Size){
+                    for (auto y:city[aim]) if (y->get_belong()!=x->get_belong()){
+                        p->attack(x,y);
+                        if (y->isdead()){
+                            /*
+                            y is dead
+                            */
+                            delete y;
+                            city[aim].erase(y);
+                        }
+                        break;
+                    }
                 }
             }
-            output.flush();
         }
 
         T.inc(5);
-        if (T>limit) break;
+        if (T > limit)
+            break;
         /********* Battle Begin *********/
         BattleTurn();
 
         /********* Report **********/
         T.inc(10);
-        if (T>limit) break;
+        if (T > limit)
+            break;
         output.push(HeadA.get_outputlevel(), T.sPrint() + ' ' + to_string(HeadA.getHP()) + " elements in " + HeadA.getname() + " headquarter\n");
         output.push(HeadB.get_outputlevel(), T.sPrint() + ' ' + to_string(HeadB.getHP()) + " elements in " + HeadB.getname() + " headquarter\n");
-		output.flush();
+        output.flush();
 
         T.inc(5);
-        if (T>limit) break;
+        if (T > limit)
+            break;
         for (int i = 0; i <= Size; ++i)
             for (auto x : city[i])
                 output.push(x->get_outputlevel(), T.sPrint() + ' ' + x->report() + '\n');
         output.flush();
 
         T.inc(5);
-        if (T>limit) break;
+        if (T > limit)
+            break;
     }
 }
 
-BattleField::~BattleField(){
-    for (int i=0;i<Size;++i){
-        for (auto x: city[i]) delete x;
+BattleField::~BattleField()
+{
+    for (int i = 0; i < Size; ++i)
+    {
+        for (auto x : city[i])
+            delete x;
     }
-    delete []city;
+    delete[] city;
 }

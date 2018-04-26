@@ -18,20 +18,17 @@ class Headquarter
 {
   private:
 	string name;
-	vector<function<Samurai *(Headquarter*)>> Order;
-	vector<function<Weapon *()>> Weapons;
+	vector<function<Samurai *(Headquarter *)>> Order;
+	vector<function<Weapon *(Samurai *)>> Weapons;
 	vector<int> ExistNumber;
 	int HealthPoint, OnWitch = 0, Count = 0;
-	bool stopped = false;
 	int posi, dire, outputlevel;
 
   public:
 	Headquarter(const string &_name, int _HP,
-				const vector<function<Samurai *(Headquarter*)>> &_Order,
-				const vector<function<Weapon *()>> &_Weapons);
-	Headquarter(const Headquarter&);
-	void Stop();
-	bool isstopped() { return stopped; }
+				const vector<function<Samurai *(Headquarter *)>> &_Order,
+				const vector<function<Weapon *(Samurai *)>> &_Weapons);
+	Headquarter(const Headquarter &);
 	tuple<Samurai *, string> Build_SA();
 	unsigned int getOrderSize();
 	unsigned int getWeaponsSize() { return Weapons.size(); }
@@ -40,7 +37,7 @@ class Headquarter
 	void changeCount(int x) { Count = x; }
 	int getHP() const { return HealthPoint; }
 	void changeHP(int x) { HealthPoint = x; }
-	Weapon *getweapon(int x) const;
+	Weapon *getweapon(int, Samurai *) const;
 	int get_pos() const { return posi; }
 	void set_pos(int x) { posi = x; }
 	int get_direct() const { return dire; }
@@ -48,6 +45,7 @@ class Headquarter
 	int get_outputlevel() const { return outputlevel; }
 	void set_outputlevel(int x) { outputlevel = x; }
 	string getname() const { return name; }
+	void receiveHP(int x = 0) { HealthPoint += x; }
 	~Headquarter() = default;
 };
 
@@ -94,13 +92,34 @@ class OrderedOutput
 	}
 };
 
+class City
+{
+	typedef set<Samurai *> SamuraiSet;
+	SamuraiSet samurais;
+	int pos, HP = 0;
+	Headquarter *possessed = NULL;
+
+  public:
+	City() = default;
+	void insert(Samurai *x) { samurais.insert(x); }
+	void erase(Samurai *const &x) { samurais.erase(x); }
+	SamuraiSet::const_iterator begin() { return samurais.cbegin(); }
+	SamuraiSet::const_iterator end() { return samurais.cend(); }
+	SamuraiSet::const_reverse_iterator rbegin() { return samurais.crbegin(); }
+	SamuraiSet::const_reverse_iterator rend() { return samurais.crend(); }
+	void set_pos(int x) { pos = x; }
+	int get_pos() const { return pos; }
+	unsigned int size() const { return samurais.size(); }
+	void generateHP() { HP += 10; }
+	int lostHP();
+};
+
 class BattleField
 {
 	TIME T;
 	int Size;
 	Headquarter HeadA, HeadB;
-	typedef set<Samurai *> SamuraiSet;
-	SamuraiSet *city;
+	City *city;
 
   public:
 	BattleField(int n, Headquarter a, Headquarter b);
