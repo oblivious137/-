@@ -62,7 +62,8 @@ BattleField::BattleField(int n, Headquarter a, Headquarter b) : Size(n + 1), Hea
     HeadA.set_outputlevel(1);
     HeadB.set_outputlevel(2);
     city = new City[n + 2];
-    for (int i=0;i<=Size;++i) city[i].set_pos(i);
+    for (int i = 0; i <= Size; ++i)
+        city[i].set_pos(i);
 }
 
 void BattleField::BuildTurn()
@@ -312,27 +313,43 @@ void BattleField::Run(TIME limit)
 
         /********* 35' : Shot *********/
         T.inc(5);
-        for (int i=0;i<=Size;++i){
-            Weapon* p;
-            for (auto x : city[i]) if (p=x->getbag().canshot()){
-                int aim = i + x->get_direct();
-                if (aim>=0&&aim<=Size){
-                    for (auto y:city[aim]) if (y->get_belong()!=x->get_belong()){
-                        p->attack(x,y);
-                        if (y->isdead()){
-                            /*
+        for (int i = 0; i <= Size; ++i)
+        {
+            Weapon *p;
+            for (auto x : city[i])
+                if (p = x->getbag().canshot())
+                {
+                    int aim = i + x->get_direct();
+                    if (aim >= 0 && aim <= Size)
+                    {
+                        for (auto y : city[aim])
+                            if (y->get_belong() != x->get_belong())
+                            {
+                                p->attack(x, y);
+                                if (y->isdead())
+                                {
+                                    /*
                             y is dead
                             */
-                            delete y;
-                            city[aim].erase(y);
-                        }
-                        break;
+                                    delete y;
+                                    city[aim].erase(y);
+                                }
+                                break;
+                            }
                     }
                 }
-            }
         }
 
-        T.inc(5);
+        /********* 38' : Bomb **********/
+        T.inc(3);
+        for (int i = 1; i < Size; ++i)
+            if (city[i].size() == 2)
+            {
+                Samurai *a = *city[i].begin(), *b = *city[i].rbegin();
+                if (batle)
+            }
+
+        T.inc(2);
         if (T > limit)
             break;
         /********* Battle Begin *********/

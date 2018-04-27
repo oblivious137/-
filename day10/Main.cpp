@@ -1,13 +1,4 @@
 #define _CRT_SECURE_NO_WARNINGS
-#include <cstdio>
-#include <string>
-#include <vector>
-#include <cstring>
-#include <iomanip>
-#include <sstream>
-#include <iostream>
-#include <algorithm>
-#include <functional>
 #include "headquarter.h"
 #include "samurai.h"
 #include "weapon.h"

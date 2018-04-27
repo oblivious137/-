@@ -1,16 +1,6 @@
 #pragma once
-#include <cstdio>
-#include <string>
-#include <vector>
-#include <cstring>
-#include <iomanip>
-#include <sstream>
-#include <iostream>
-#include <algorithm>
-#include <functional>
 #include "WarcraftClassDeclaration.h"
 #include "weapon_declaration.h"
-using namespace std;
 
 class Samurai
 {
@@ -60,8 +50,8 @@ class Dragon : public Samurai
 	static Samurai *generate(Headquarter *info, int _HP, int _Atk);
 	Samurai *copy()
 	{
-		Dragon *ret = new Dragon();
-		memcpy(ret, this, sizeof(Dragon));
+		Dragon *ret = new Dragon(get_belong(), getnumber(), getHP(), getAtk(), morale);
+		ret->getbag() = getbag();
 		return ret;
 	}
 	string yelled();
@@ -77,8 +67,8 @@ class Ninja : public Samurai
 	static Samurai *generate(Headquarter *info, int _HP, int _Atk);
 	Samurai *copy()
 	{
-		Ninja *ret = new Ninja();
-		memcpy(ret, this, sizeof(Ninja));
+		Ninja *ret = new Ninja(get_belong(), getnumber(), getHP(), getAtk());
+		ret->getbag() = getbag();
 		return ret;
 	}
 };
@@ -94,8 +84,8 @@ class Iceman : public Samurai
 	void moveeffect() { hurted(getHP() * (0.1 + 1e-8)); }
 	Samurai *copy()
 	{
-		Iceman *ret = new Iceman();
-		memcpy(ret, this, sizeof(Iceman));
+		Iceman *ret = new Iceman(get_belong(), getnumber(), getHP(), getAtk());
+		ret->getbag() = getbag();
 		return ret;
 	}
 };
@@ -115,8 +105,8 @@ class Lion : public Samurai
 	string escape();
 	Samurai *copy()
 	{
-		Lion *ret = new Lion();
-		memcpy(ret, this, sizeof(Lion));
+		Lion *ret = new Lion(get_belong(), getnumber(), getHP(), getAtk(), loyalty, LDec);
+		ret->getbag() = getbag();
 		return ret;
 	}
 };
@@ -132,8 +122,8 @@ class Wolf : public Samurai
 	string rob(Samurai *);
 	Samurai *copy()
 	{
-		Wolf *ret = new Wolf();
-		memcpy(ret, this, sizeof(Wolf));
+		Wolf *ret = new Wolf(get_belong(), getnumber(), getHP(), getAtk());
+		ret->getbag() = getbag();
 		return ret;
 	}
 };

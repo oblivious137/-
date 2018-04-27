@@ -1,18 +1,6 @@
 #define _CRT_SECURE_NO_WARNINGS
 #pragma once
-#include <cstdio>
-#include <string>
-#include <vector>
-#include <cstring>
-#include <iomanip>
-#include <sstream>
-#include <iostream>
-#include <algorithm>
-#include <functional>
-#include <set>
-#include <tuple>
 #include "WarcraftClassDeclaration.h"
-using namespace std;
 
 class Headquarter
 {
@@ -98,6 +86,7 @@ class City
 	SamuraiSet samurais;
 	int pos, HP = 0;
 	Headquarter *possessed = NULL;
+	map<Headquarter*, int> win_time;
 
   public:
 	City() = default;
@@ -111,6 +100,7 @@ class City
 	int get_pos() const { return pos; }
 	unsigned int size() const { return samurais.size(); }
 	void generateHP() { HP += 10; }
+	void win(Headquarter*);
 	int lostHP();
 };
 

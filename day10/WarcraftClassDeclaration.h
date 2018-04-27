@@ -1,4 +1,16 @@
 #define _CRT_SECURE_NO_WARNINGS
+#include <cstdio>
+#include <string>
+#include <vector>
+#include <cstring>
+#include <iomanip>
+#include <sstream>
+#include <iostream>
+#include <algorithm>
+#include <functional>
+#include <set>
+#include <tuple>
+using namespace std;
 /******* Weapon ********/
 class Weapon;
 class WeaponBag;

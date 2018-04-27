@@ -1,15 +1,5 @@
 #pragma once
-#include <cstdio>
-#include <string>
-#include <vector>
-#include <cstring>
-#include <iomanip>
-#include <sstream>
-#include <iostream>
-#include <algorithm>
-#include <functional>
 #include "WarcraftClassDeclaration.h"
-using namespace std;
 
 class Weapon
 {
