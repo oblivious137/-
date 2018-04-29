@@ -18,7 +18,6 @@ int main()
 			scanf("%d", &hp[i]);
 		for (int i = 0; i < 5; ++i)
 			scanf("%d", &atk[i]);
-
 		vector<function<Samurai *(Headquarter *)>> AS;
 		AS.push_back(bind(Iceman::generate, placeholders::_1, hp[2], atk[2]));
 		AS.push_back(bind(Lion::generate, placeholders::_1, hp[3], atk[3], K));
@@ -35,8 +34,8 @@ int main()
 
 		vector<function<Weapon *(Samurai *)>> W;
 		W.push_back(bind(Sword::generate, placeholders::_1, 0.2, 0.8));
-		W.push_back(bind(Arrow::generate, placeholders::_1, R, 3));
 		W.push_back(bind(Bomb::generate, placeholders::_1, 1));
+		W.push_back(bind(Arrow::generate, placeholders::_1, R, 3));
 
 		Headquarter red("red", M, AS, W), blue("blue", M, BS, W);
 

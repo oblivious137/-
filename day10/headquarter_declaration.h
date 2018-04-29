@@ -5,12 +5,14 @@
 class Headquarter
 {
   private:
+	typedef tuple<int, Samurai *, int> quetype;
 	string name;
 	vector<function<Samurai *(Headquarter *)>> Order;
 	vector<function<Weapon *(Samurai *)>> Weapons;
 	vector<int> ExistNumber;
 	int HealthPoint, OnWitch = 0, Count = 0;
 	int posi, dire, outputlevel;
+	vector<quetype> que;
 
   public:
 	Headquarter(const string &_name, int _HP,
@@ -34,6 +36,8 @@ class Headquarter
 	void set_outputlevel(int x) { outputlevel = x; }
 	string getname() const { return name; }
 	void receiveHP(int x = 0) { HealthPoint += x; }
+	void askforHP(quetype x) { que.push_back(x); }
+	void clearque();
 	~Headquarter() = default;
 };
 
@@ -85,22 +89,34 @@ class City
 	typedef set<Samurai *> SamuraiSet;
 	SamuraiSet samurais;
 	int pos, HP = 0;
-	Headquarter *possessed = NULL;
-	map<Headquarter*, int> win_time;
+	Headquarter *possessed = NULL, *_definedfirst = NULL;
+	Headquarter *last_win = NULL;
 
   public:
 	City() = default;
 	void insert(Samurai *x) { samurais.insert(x); }
 	void erase(Samurai *const &x) { samurais.erase(x); }
-	SamuraiSet::const_iterator begin() { return samurais.cbegin(); }
-	SamuraiSet::const_iterator end() { return samurais.cend(); }
-	SamuraiSet::const_reverse_iterator rbegin() { return samurais.crbegin(); }
-	SamuraiSet::const_reverse_iterator rend() { return samurais.crend(); }
+	SamuraiSet::const_iterator begin() const { return samurais.cbegin(); }
+	SamuraiSet::const_iterator end() const { return samurais.cend(); }
+	SamuraiSet::const_reverse_iterator rbegin() const { return samurais.crbegin(); }
+	SamuraiSet::const_reverse_iterator rend() const { return samurais.crend(); }
 	void set_pos(int x) { pos = x; }
 	int get_pos() const { return pos; }
 	unsigned int size() const { return samurais.size(); }
 	void generateHP() { HP += 10; }
-	void win(Headquarter*);
+	void win(Headquarter *);
+	Headquarter *deffirst() const { return _definedfirst; }
+	void setdeffirst(Headquarter *x) { _definedfirst = x; }
+	Headquarter *conquer() const { return possessed; }
+	string fightresult(Headquarter *a)
+	{
+		if (a != NULL && last_win == a && possessed != a){
+			possessed = last_win;
+			return a->getname() + " flag raised in city " + to_string(get_pos());
+		}
+		last_win = a;
+		return "";
+	}
 	int lostHP();
 };
 
@@ -117,5 +133,7 @@ class BattleField
 	void BuildTurn();
 	int MoveTurn();
 	void BattleTurn();
+	vector<string> Fight(Samurai *, Samurai *);
+	bool FightFirst(Samurai *, Samurai *);
 	~BattleField();
 };

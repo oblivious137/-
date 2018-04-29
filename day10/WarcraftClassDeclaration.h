@@ -9,6 +9,7 @@
 #include <algorithm>
 #include <functional>
 #include <set>
+#include <map>
 #include <tuple>
 using namespace std;
 /******* Weapon ********/
