@@ -203,11 +203,11 @@ vector<string> BattleField::Fight(Samurai *a, Samurai *b)
     if (!FightFirst(a, b))
         swap(a, b);
     a->Fight(b);
-    ret.push_back(a->getfullname() + " attacked " + b->getfullname() + " in city " + to_string(a->getpos()) +" with " + to_string(a->getHP()) + " elements and force " + to_string(a->getAtk()));
+    ret.push_back(a->getfullname() + " attacked " + b->getfullname() + " in city " + to_string(a->getpos()) + " with " + to_string(a->getHP()) + " elements and force " + to_string(a->getAtk()));
     if (!b->isdead())
     {
         b->reFight(a);
-        ret.push_back(b->getfullname() + " fought back against " + a->getfullname() + " in city " +to_string(b->getpos()));
+        ret.push_back(b->getfullname() + " fought back against " + a->getfullname() + " in city " + to_string(b->getpos()));
     }
     return ret;
 }
@@ -394,7 +394,7 @@ void BattleField::Run(TIME limit)
             {
                 Weapon *p;
                 for (auto x : city[i])
-                    if (p = x->canshot())
+                    if ((p = x->canshot()) != NULL)
                     {
                         int aim = i + x->get_direct();
                         if (aim >= 0 && aim <= Size)
@@ -428,7 +428,7 @@ void BattleField::Run(TIME limit)
                         continue;
                     Samurai *aa = a->copy(), *bb = b->copy();
                     Fight(aa, bb);
-                    if (aa->isdead() && aa->canbomb())
+                    if (aa->isdead() && aa->canbomb() != NULL)
                     {
                         output.push(i, T.sPrint() + ' ' + aa->getfullname() + " used a bomb and killed " + bb->getfullname() + '\n');
                         city[i].erase(a);

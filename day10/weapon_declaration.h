@@ -105,9 +105,10 @@ class WeaponBag
 	}
 	WeaponBag &operator=(const WeaponBag &t)
 	{
-		weapons = t.weapons;
-		for (auto &x : weapons)
-			x = x->copy();
+		weapons.clear();
+		VolumeLimit = t.VolumeLimit;
+		for (auto x : t.weapons)
+			weapons.push_back(x->copy());
 		return *this;
 	}
 	void set_limit(int x) { VolumeLimit = x; }
@@ -155,7 +156,7 @@ class WeaponBag
 	{
 		preliminary();
 		Weapon *p;
-		while (p = next())
+		while ((p = next()) != NULL)
 		{
 			if (p->canshot())
 				return p;
@@ -166,7 +167,7 @@ class WeaponBag
 	{
 		preliminary();
 		Weapon *p;
-		while (p = next())
+		while ((p = next()) != NULL)
 		{
 			if (p->canbomb())
 				return p;
@@ -177,7 +178,7 @@ class WeaponBag
 	{
 		preliminary();
 		Weapon *p;
-		while (p = next())
+		while ((p = next()) != NULL)
 		{
 			if (!p->canbomb() && !p->canshot())
 				return p;
@@ -188,7 +189,7 @@ class WeaponBag
 	{
 		preliminary();
 		Weapon *p;
-		while (p = next())
+		while ((p = next()) != NULL)
 		{
 			if (!p->canshot() && !p->canbomb())
 			{
