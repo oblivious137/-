@@ -133,7 +133,7 @@ int BattleField::MoveTurn()
                     stringstream tp;
                     tp << T.sPrint() << ' ' << x->getfullname();
                     if (aim != 0 && aim != Size)
-                        tp << " marched to city " << i;
+                        tp << " marched to city " << aim;
                     else
                         tp << " reached " << ((aim == 0) ? (HeadA.getname()) : (HeadB.getname())) << " headquarter";
                     tp << " with " << x->getHP() << " elements and force " << x->getAtk() << '\n';
@@ -162,7 +162,7 @@ int BattleField::MoveTurn()
                     stringstream tp;
                     tp << T.sPrint() << ' ' << x->getfullname();
                     if (aim != 0 && aim != Size)
-                        tp << " marched to city " << i;
+                        tp << " marched to city " << aim;
                     else
                         tp << " reached " << ((aim == 0) ? (HeadA.getname()) : (HeadB.getname())) << " headquarter";
                     tp << " with " << x->getHP() << " elements and force " << x->getAtk() << '\n';
@@ -199,7 +199,7 @@ vector<string> BattleField::Fight(Samurai *a, Samurai *b)
 {
     vector<string> ret;
     if (a->isdead() || b->isdead())
-        return vector<string>();
+        return ret;
     if (!FightFirst(a, b))
         swap(a, b);
     a->Fight(b);
@@ -209,7 +209,7 @@ vector<string> BattleField::Fight(Samurai *a, Samurai *b)
         b->reFight(a);
         ret.push_back(b->getfullname() + " fought back against " + a->getfullname() + " in city " +to_string(b->getpos()));
     }
-    return vector<string>();
+    return ret;
 }
 
 void BattleField::BattleTurn()
@@ -219,6 +219,7 @@ void BattleField::BattleTurn()
     for (int i = 1; i < Size; ++i)
         if (city[i].size() == 2)
         {
+
             Samurai *a = *city[i].begin();
             Samurai *b = *city[i].rbegin();
             a->prefight();
@@ -324,7 +325,7 @@ void BattleField::Run(TIME limit)
 {
     for (;;)
     {
-        fprintf(stderr,"xxxxxxxxxx\n");
+        //fprintf(stderr,"xxxxxxxxxx\n");
         OrderedOutput output;
         /********* 0' : Build Samurais ********/
         BuildTurn();

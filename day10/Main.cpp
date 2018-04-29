@@ -6,6 +6,8 @@ using namespace std;
 
 int main()
 {
+	freopen("in.txt", "r", stdin);
+	freopen("out.txt", "w", stdout);
 	int T = 0;
 	scanf("%d", &T);
 	for (int cas = 1; cas <= T; ++cas)
@@ -42,5 +44,6 @@ int main()
 		BattleField B(N, red, blue);
 		B.Run(D);
 	}
+	//system("pause");
 	return 0;
 }

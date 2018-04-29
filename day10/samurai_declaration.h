@@ -41,17 +41,19 @@ class Samurai
 	Weapon *canshot() { return bag.canshot(); }
 	Weapon *canbomb() { return bag.canbomb(); }
 	virtual string fightwin(Samurai *);
-	virtual string fightlose(Samurai *) {}
-	virtual string fightdraw(Samurai *, int) {}
+	virtual string fightlose(Samurai *) { return ""; }
+	virtual string fightdraw(Samurai *, int) { return ""; }
 	virtual string Fight(Samurai *x)
 	{
 		if (!isdead())
 			x->hurted(Attack + bag.Atk());
+		return "";
 	}
 	virtual string reFight(Samurai *x)
 	{
 		if (!isdead())
 			x->hurted(Attack / 2 + bag.Atk());
+		return "";
 	}
 	virtual void prefight() {}
 };
@@ -92,7 +94,7 @@ class Ninja : public Samurai
 		ret->getbag() = getbag();
 		return ret;
 	}
-	string reFight(Samurai *) {}
+	string reFight(Samurai *) { return ""; }
 };
 
 class Iceman : public Samurai

@@ -72,6 +72,7 @@ class OrderedOutput
 	void flush()
 	{
 		sort(data.begin(), data.end(), [](const pair<int, string> &a, const pair<int, string> &b) { return a.first < b.first; });
+		
 		for (auto &x : data)
 		{
 			cout << x.second;

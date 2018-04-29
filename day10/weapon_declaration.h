@@ -38,6 +38,7 @@ class Weapon
 	virtual Weapon *copy() = 0;
 	virtual void worn(){};
 	virtual string report() const { return ""; };
+	virtual ~Weapon() = default;
 };
 const string Weapon::_weaponnames[3] = {"sword", "bomb", "arrow"};
 
@@ -53,6 +54,7 @@ class Sword : Weapon
 	void worn() { setAtk(getAtk() * worn_ratio + 1e-8); }
 	Weapon *copy() { return new Sword(getname(), getAtk(), worn_ratio); }
 	string report() const { return '(' + to_string(getAtk()) + ')'; }
+	~Sword() = default;
 };
 
 class Bomb : Weapon
@@ -68,6 +70,7 @@ class Bomb : Weapon
 	bool canbomb() const { return true; }
 	Weapon *copy() { return new Bomb(getname(), getAtk(), times); }
 	void worn() { --times; }
+	~Bomb() = default;
 };
 
 class Arrow : Weapon
@@ -84,6 +87,7 @@ class Arrow : Weapon
 	bool canshot() { return true; }
 	Weapon *copy() { return new Arrow(getname(), getAtk(), times); }
 	void worn() { --times; }
+	~Arrow() = default;
 };
 
 class WeaponBag
@@ -104,6 +108,7 @@ class WeaponBag
 		weapons = t.weapons;
 		for (auto &x : weapons)
 			x = x->copy();
+		return *this;
 	}
 	void set_limit(int x) { VolumeLimit = x; }
 	void preliminary(bool (*x)(Weapon *, Weapon *) = Weapon::CMP)
@@ -225,7 +230,6 @@ class WeaponBag
 	string report()
 	{
 		preliminary();
-		int st = 0;
 		string ret;
 		for (auto x = weapons.rbegin(); x != weapons.rend(); ++x)
 		{
