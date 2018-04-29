@@ -3,8 +3,7 @@
 #include "samurai_declaration.h"
 #include "weapon_declaration.h"
 
-Samurai::Samurai(Headquarter *_B, int _number, int _HP, int _Atk, double _reatack) : belong(_B), Number(_number), HealthPoint(_HP), Attack(_Atk),
-																					 reattack_ratio(_reatack){};
+Samurai::Samurai(Headquarter *_B, int _number, int _HP, int _Atk) : belong(_B), Number(_number), HealthPoint(_HP), Attack(_Atk) {};
 string Samurai::getfullname() const { return belong->getname() + ' ' + getname() + ' ' + to_string(Number); }
 int Samurai::get_outputlevel() const { return belong->get_outputlevel() * 100 + getpos(); }
 int Samurai::get_routputlevel() const { return getpos() * 100 + belong->get_outputlevel(); }
@@ -22,11 +21,11 @@ bool Samurai::addweapon(Weapon *x)
 }
 string Samurai::fightwin(Samurai *x)
 {
-	belong->askforHP(make_tuple(Position, x, 8));
+	belong->askforHP(make_tuple(Position, this, 8));
 	return "";
 }
 
-Dragon::Dragon(Headquarter *_B, int _number, int _HP, int _Atk, double _morale) : Samurai(_B, _number, _HP, _Atk, 0.2), morale(_morale){};
+Dragon::Dragon(Headquarter *_B, int _number, int _HP, int _Atk, double _morale) : Samurai(_B, _number, _HP, _Atk), morale(_morale){};
 Samurai *Dragon::generate(Headquarter *info, int _HP, int _Atk)
 {
 	if (info->getHP() < _HP)
@@ -34,6 +33,7 @@ Samurai *Dragon::generate(Headquarter *info, int _HP, int _Atk)
 	int cnt = info->generateNextSamurai(_HP);
 	Samurai *ret = new Dragon(info, cnt, _HP, _Atk, (double)info->getHP() / _HP);
 	ret->addweapon(info->getweapon(cnt % 3, ret));
+	ret->setpos(info->get_pos());
 	return ret;
 }
 string Dragon::borninfo() const
@@ -49,13 +49,15 @@ string Dragon::yelled()
 	else
 		return "";
 }
-string Dragon::fightwin(Samurai *)
+string Dragon::fightwin(Samurai * a)
 {
+	Samurai::fightwin(a);
 	morale += fight_morale;
 	return "";
 }
-string Dragon::fightdraw(Samurai *, int x)
+string Dragon::fightdraw(Samurai * a , int x)
 {
+	//Samurai::fightdraw(a, x);
 	if (x == 1)
 		morale -= fight_morale;
 	return "";
@@ -70,6 +72,7 @@ Samurai *Ninja::generate(Headquarter *info, int _HP, int _Atk)
 	Samurai *ret = new Ninja(info, cnt, _HP, _Atk);
 	ret->addweapon(info->getweapon(cnt % 3, ret));
 	ret->addweapon(info->getweapon((cnt + 1) % 3, ret));
+	ret->setpos(info->get_pos());
 	return ret;
 }
 
@@ -81,13 +84,13 @@ Samurai *Iceman::generate(Headquarter *info, int _HP, int _Atk)
 	int cnt = info->generateNextSamurai(_HP);
 	Samurai *ret = new Iceman(info, cnt, _HP, _Atk);
 	ret->addweapon(info->getweapon(cnt % 3, ret));
+	ret->setpos(info->get_pos());
 	return ret;
 }
 void Iceman::moveeffect()
 {
-	static int count = 0;
-	++count;
-	if (count % 2 == 0)
+	++step_count;
+	if (step_count % 2 == 0)
 	{
 		hurted(min(9, getHP() - 1));
 		setAtk(getAtk() + 20);
@@ -105,6 +108,7 @@ Samurai *Lion::generate(Headquarter *info, int _HP, int _Atk, int _LDec)
 		return NULL;
 	int cnt = info->generateNextSamurai(_HP);
 	Samurai *ret = new Lion(info, cnt, _HP, _Atk, info->getHP(), _LDec);
+	ret->setpos(info->get_pos());
 	return ret;
 }
 string Lion::escape()
@@ -132,7 +136,9 @@ Samurai *Wolf::generate(Headquarter *info, int _HP, int _Atk)
 	if (info->getHP() < _HP)
 		return NULL;
 	int cnt = info->generateNextSamurai(_HP);
-	return new Wolf(info, cnt, _HP, _Atk);
+	Samurai* ret = new Wolf(info, cnt, _HP, _Atk);
+	ret->setpos(info->get_pos());
+	return ret;
 }
 string Wolf::rob(Samurai *x)
 {

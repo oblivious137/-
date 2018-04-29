@@ -21,8 +21,8 @@ class Weapon
 	virtual int priority() { return 0; }
 	virtual bool bethrown() const { return this == NULL; }
 	virtual int attack(Samurai *a, Samurai *b) { return 0; } //bits: B_hurted, A_hurted, Weapon_worn
-	virtual bool canshot() { return false; };
-	virtual bool canbomb() { return false; };
+	virtual bool canshot() const { return false; };
+	virtual bool canbomb() const { return false; };
 	static bool CMP(Weapon *a, Weapon *b)
 	{
 		if (a->getnumber() != b->getnumber())
@@ -48,7 +48,7 @@ class Sword : Weapon
 	double worn_ratio;
 	Sword(string name = "", int _atk = 0, double _ratio = 0) : Weapon(name, _atk), worn_ratio(_ratio){};
 	virtual int getnumber() const { return 0; }
-	bool bethrown() { return getAtk() <= 0; }
+	bool bethrown() const { return getAtk() <= 0; }
 	int attack(Samurai *, Samurai *);
 	static Weapon *generate(Samurai *, double, double);
 	void worn() { setAtk(getAtk() * worn_ratio + 1e-8); }
@@ -84,9 +84,10 @@ class Arrow : Weapon
 	int attack(Samurai *, Samurai *);
 	bool bethrown() const { return times <= 0; }
 	static Weapon *generate(Samurai *, int, int);
-	bool canshot() { return true; }
+	bool canshot() const { return true; }
 	Weapon *copy() { return new Arrow(getname(), getAtk(), times); }
 	void worn() { --times; }
+	string report() const { return '(' + to_string(times) + ')'; }
 	~Arrow() = default;
 };
 
@@ -119,6 +120,7 @@ class WeaponBag
 			if (weapons[i]->bethrown())
 				weapons.erase(weapons.begin() + i), --i;
 		}
+		sort(weapons.begin(), weapons.end(), Weapon::CMP);
 		_now = weapons.begin();
 	}
 	void throwit(vector<Weapon *>::iterator it)
@@ -191,7 +193,7 @@ class WeaponBag
 		Weapon *p;
 		while ((p = next()) != NULL)
 		{
-			if (!p->canshot() && !p->canbomb())
+			if ((!p->canshot()) && (!p->canbomb()))
 			{
 				int ret = p->getAtk();
 				p->worn();

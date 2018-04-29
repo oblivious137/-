@@ -7,10 +7,9 @@ class Samurai
 	Headquarter *belong;
 	WeaponBag bag;
 	int Number, HealthPoint, Attack, Position;
-	double reattack_ratio;
 
   public:
-	Samurai(Headquarter *_B = NULL, int _number = 0, int _HP = 0, int _Atk = 0, double _reatack = 0);
+	Samurai(Headquarter *_B = NULL, int _number = 0, int _HP = 0, int _Atk = 0);
 	void setbelong(Headquarter *x) { belong = x; }
 	virtual string getname() const = 0;
 	int getHP() const { return HealthPoint; }
@@ -37,7 +36,6 @@ class Samurai
 	virtual string yelled() { return ""; }
 	string report() { return getfullname() + " has " + bag.report(); }
 	virtual Samurai *copy() = 0;
-	virtual int reatack() { return getAtk() * reattack_ratio + 1e-8; };
 	Weapon *canshot() { return bag.canshot(); }
 	Weapon *canbomb() { return bag.canbomb(); }
 	virtual string fightwin(Samurai *);
@@ -53,7 +51,7 @@ class Samurai
 	{
 		if (!isdead())
 			x->hurted(Attack / 2 + bag.Atk());
-		return "";
+		return getfullname() + " fought back against " + x->getfullname() + " in city " + to_string(getpos());
 	}
 	virtual void prefight() {}
 };
@@ -72,6 +70,7 @@ class Dragon : public Samurai
 	{
 		Dragon *ret = new Dragon(get_belong(), getnumber(), getHP(), getAtk(), morale);
 		ret->getbag() = getbag();
+		ret->setpos(getpos());
 		return ret;
 	}
 	string borninfo() const;
@@ -92,13 +91,15 @@ class Ninja : public Samurai
 	{
 		Ninja *ret = new Ninja(get_belong(), getnumber(), getHP(), getAtk());
 		ret->getbag() = getbag();
+		ret->setpos(getpos());
 		return ret;
 	}
-	string reFight(Samurai *) { return ""; }
+	string reFight(Samurai *x) { return ""; }
 };
 
 class Iceman : public Samurai
 {
+	int step_count = 0;
   public:
 	Iceman(Headquarter *_B = NULL, int _number = 0, int _HP = 0, int _Atk = 0);
 	string getname() const { return "iceman"; }
@@ -109,6 +110,7 @@ class Iceman : public Samurai
 	{
 		Iceman *ret = new Iceman(get_belong(), getnumber(), getHP(), getAtk());
 		ret->getbag() = getbag();
+		ret->setpos(getpos());
 		return ret;
 	}
 };
@@ -131,6 +133,7 @@ class Lion : public Samurai
 	{
 		Lion *ret = new Lion(get_belong(), getnumber(), getHP(), getAtk(), loyalty, LDec);
 		ret->getbag() = getbag();
+		ret->setpos(getpos());
 		return ret;
 	}
 	void prefight() { lastHP = getHP(); }
@@ -150,6 +153,7 @@ class Wolf : public Samurai
 	{
 		Wolf *ret = new Wolf(get_belong(), getnumber(), getHP(), getAtk());
 		ret->getbag() = getbag();
+		ret->setpos(getpos());
 		return ret;
 	}
 	string fightwin(Samurai *);

@@ -104,13 +104,13 @@ void BattleField::BuildTurn()
     if (nS && log.length())
         output.push(HeadA.get_outputlevel(), T.sPrint() + ' ' + log + '\n');
     if (nS)
-        city[HeadA.get_pos()].insert(nS), nS->setpos(HeadA.get_pos());
+        city[HeadA.get_pos()].insert(nS);
 
     tie(nS, log) = HeadB.Build_SA();
     if (nS && log.length())
         output.push(HeadB.get_outputlevel(), T.sPrint() + ' ' + log + '\n');
     if (nS)
-        city[HeadB.get_pos()].insert(nS), nS->setpos(HeadB.get_pos());
+        city[HeadB.get_pos()].insert(nS);
 }
 
 int BattleField::MoveTurn()
@@ -206,8 +206,8 @@ vector<string> BattleField::Fight(Samurai *a, Samurai *b)
     ret.push_back(a->getfullname() + " attacked " + b->getfullname() + " in city " + to_string(a->getpos()) + " with " + to_string(a->getHP()) + " elements and force " + to_string(a->getAtk()));
     if (!b->isdead())
     {
-        b->reFight(a);
-        ret.push_back(b->getfullname() + " fought back against " + a->getfullname() + " in city " + to_string(b->getpos()));
+        string tmp = b->reFight(a);
+		if (tmp.length() > 0) ret.push_back(tmp);
     }
     return ret;
 }
@@ -252,13 +252,13 @@ void BattleField::BattleTurn()
             if (a->isdead())
             {
                 if (state.size() > 0)
-                    output.push(i * base + dead, T.sPrint() + a->getfullname() + " was killed in city " +
+                    output.push(i * base + dead, T.sPrint() + ' ' + a->getfullname() + " was killed in city " +
                                                      to_string(i) + '\n');
             }
             if (b->isdead())
             {
                 if (state.size() > 0)
-                    output.push(i * base + dead, T.sPrint() + b->getfullname() + " was killed in city " +
+                    output.push(i * base + dead, T.sPrint() + ' ' + b->getfullname() + " was killed in city " +
                                                      to_string(i) + '\n');
             }
 
@@ -302,22 +302,22 @@ void BattleField::BattleTurn()
                 if (log.length() > 0)
                     output.push(i * base + flag, T.sPrint() + ' ' + log + '\n');
             }
-
-            //delete dead samurai
-            if (a->isdead())
-            {
-                city[i].erase(a);
-                delete a;
-            }
-            if (b->isdead())
-            {
-                city[i].erase(b);
-                delete b;
-            }
         }
     // clear queue
     HeadA.clearque();
     HeadB.clearque();
+    //delete dead samurai
+	for (int i = 0; i <= Size; ++i) {
+		vector<Samurai*> trash;
+		for (auto a : city[i]) {
+			if (a->isdead())
+			{
+				trash.push_back(a);
+				delete a;
+			}
+		}
+		for (auto a : trash) city[i].erase(a);
+	}
     return;
 }
 
