@@ -2,6 +2,7 @@ import re
 import json
 import os, sys
 from functools import reduce
+import copy
 
 class GameState:
     def __init__(self, cards, puliccard, now=0, first=0, last=0):
@@ -37,77 +38,13 @@ class GameState:
         ret.append(1 if (self._last == 0) else 0)
         ret.append(1 if (self._last == 1) else 0)
         ret.append(1 if (self._last == 2) else 0)
-
-def getoperation(_card, history):
-    def getvalue(x):
-        if x < 52:
-            return x//4
-        else:
-            return x-52+13
-    
-    ans = list()
-    lst = dict()
-    try:
-        if len(history[-1]) > 0:
-            for i in history[-1]:
-                if ! getvalue(i) in lst:
-                    lst.update(getvalue(i), 1)
-                else:
-                    lst[getvalue(i)] += 1
-        elif len(history[-2]) > 0:
-            for i in history[-2]:
-                if ! getvalue(i) in lst:
-                    lst.update(getvalue(i), 1)
-                else:
-                    lst[getvalue(i)] += 1
-    except Exception:
-        # ignore it
-    
-    # 预处理一下
-    card = [[]]*15
-    for i in _card:
-        card[getvalue(i)].append(i)
-    # 单
-    if len(lst) == 0 or len(lst) == 1 and list(lst.values)[0] = 1:
-        for i in range(list(lst.keys)[0]+1, 15):
-            if len(card[i]) > 0:
-                ans.append(card[i][0:1])
-    # 对
-    if len(lst) == 0 or len(lst) == 1 and list(lst.values)[0] = 2:
-        for i in range(list(lst.keys)[0]+1, 15):
-            if len(card[i]) > 1:
-                ans.append(card[i][0:2])
-    # 单顺
-    if len(lst) == 0 or (len(lst) > 4 and reduce(lambda x,y: x and y == 1, lst.values())):
-        l = 0
-        sl = len(lst)
-        for i in range(12,min(lst.keys()),-1):
-            if len(card[i]) > 0:
-                l += 1
-                if l>=sl:
-                    ans.append([x[0] for x in card[i:i+sl]])
-            else:
-                l = 0
-    # 双顺
-    if len(lst) == 0 or (len(lst) > 2 and reduce(lambda x,y: x and y == 2, lst.values())):
-        l = 0
-        sl = len(lst)
-        for i in range(12,min(lst.keys()),-1):
-            if len(card[i]) > 1:
-                l += 1
-                if l>=sl:
-                    ans.append([x[0] for x in card[i:i+sl]]+[x[1] for x in card[i:i+sl]])
-            else:
-                l = 0
-    # 三带
-    if len(lst) == 0 or (len(lst) > 2 and reduce(lambda x,y: x and y == 2, lst.values())):
+        return ret
 
 data = [open("0.data", "w"), open("1.data", "w"), open("2.data", "w")]
 
 def makedata(init, history, res):
     sta = GameState(init["allocation"], init["publiccard"])
     scor = len(history)
-    print("xxxxxx")
     for i in history:
         sta.play(i)
         data[sta._now].write(" ".join(sta.state), 1.0/scor if res[sta._now] == 2 else -1.0/scor)
