@@ -1368,6 +1368,8 @@ inline vector<int> getans(vector<int> lastcard)
 	auto action_list = getoperation(myCards, lastcard);
 	for (auto &i : action_list)
 	{
+		for (auto x: i) printf("%d ",x);
+		puts("");
 		if (i.size() == myCards.size())
 			return i;
 	}
